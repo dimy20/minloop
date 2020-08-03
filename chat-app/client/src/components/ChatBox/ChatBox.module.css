@@ -1,0 +1,69 @@
+.sent {
+	position: relative;
+	background: rgba(35, 39, 42, 1);
+	text-align: right;
+	min-width: 45%;
+	padding: 10px 15px;
+	border-radius: 6px;
+	float: right;
+	right: 20px;
+	color: white;
+	font-weight: bold;
+	margin-top: 0.5em;
+	display: table;
+	justify-self: end;
+}
+
+.sent::before {
+	content: "";
+	position: absolute;
+	visibility: visible;
+	top: -1px;
+	right: -10px;
+	border-top: 10px solid #ccc;
+}
+
+.sent::after {
+	content: "";
+	position: absolute;
+	visibility: visible;
+	top: 0px;
+	right: -8px;
+	border: 10px solid transparent;
+	border-top: 10px solid rgba(35, 39, 42, 1);
+	clear: both;
+}
+.received {
+	position: relative;
+	background: rgba(35, 39, 42, 1);
+	text-align: right;
+	min-width: 45%;
+	padding: 10px 15px;
+	border-radius: 6px;
+	float: right;
+	right: 20px;
+	color: white;
+	font-weight: bold;
+	margin-top: 0.5em;
+	display: table;
+	justify-self: start;
+	margin-left: 2.1em;
+}
+.received::before {
+	content: "";
+	position: absolute;
+	visibility: visible;
+	top: -1px;
+	right: -10px;
+	border-top: 10px solid #ccc;
+}
+.received::after {
+	content: "";
+	position: absolute;
+	visibility: visible;
+	top: 0px;
+	right: 214px;
+	border: 10px solid transparent;
+	border-top: 10px solid rgba(35, 39, 42, 1);
+	clear: both;
+}
