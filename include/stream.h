@@ -1,2 +1,2 @@
-
+;
 int init_stream();
