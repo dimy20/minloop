@@ -17,12 +17,14 @@ all: $(MAIN)
 
 $(MAIN): $(SRC_OBJS) $(BUILD_DIR)/main.o
 	$(GCC) -o $(MAIN) $(BUILD_DIR)/main.o $(SRC_OBJS)
+	@echo "[x] building done."
 
 $(BUILD_DIR)/main.o: main.c
 	$(GCC) $(CFLAGS) main.c -o $@
 
 $(SRC_OBJS): $(SRCS)
-	$(GCC) $(CFLAGS) $(SRCS) -o $(SRC_OBJS)
+	$(GCC) $(CFLAGS) $(SRCS) $@
+
 
 show:
 	@echo $(SRCS)

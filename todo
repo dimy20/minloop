@@ -1,0 +1,14 @@
+core:
+    init []
+loop:
+    define basic structures [x]
+    Bring in epoll and initialisze loop []
+    Implement fd array []
+    Implement peding queue []
+
+
+
+
+
+
+
