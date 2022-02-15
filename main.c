@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "include/stream.h"
+#include "include/loop.h"
 int main(){
-    printf("Event loop!\n");
-    return 0;
+    loop_t loop;
+    loop_init(&loop);
 }

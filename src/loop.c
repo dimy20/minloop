@@ -1,8 +1,9 @@
-#include "../include/loop.h"
 #include <sys/epoll.h>
 #include <assert.h>
 #include <stdio.h>
 
+#include "../include/loop.h"
+#include "../include/error.h"
 
 void loop_init(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 

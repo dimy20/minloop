@@ -1,5 +1,5 @@
 GCC=gcc
-CFLAGS= -Wall -g -c 
+CFLAGS=-Wall -g -c 
 INCLUDES=-I
 LIBS=-l
 
@@ -17,18 +17,18 @@ all: $(MAIN)
 
 $(MAIN): $(SRC_OBJS) $(BUILD_DIR)/main.o
 	$(GCC) -o $(MAIN) $(BUILD_DIR)/main.o $(SRC_OBJS)
-	@echo "[x] building done."
+
 
 $(BUILD_DIR)/main.o: main.c
 	$(GCC) $(CFLAGS) main.c -o $@
 
-$(SRC_OBJS): $(SRCS)
-	$(GCC) $(CFLAGS) $(SRCS) $@
-
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
+	$(GCC) $(CFLAGS) $< -o $@
 
 show:
 	@echo $(SRCS)
 	@echo $(SRC_OBJS)
+	@echo $(SRC_DIR)/%.c
 
 clean:
 	rm $(BUILD_DIR)/*.o $(BIN_DIR)/*

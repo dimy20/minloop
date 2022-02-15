@@ -3,4 +3,4 @@
 
 void error_exit(int ret, char * msg);
 
-#endif /*ERROR_H*/
+#endif 
