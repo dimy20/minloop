@@ -20,6 +20,14 @@ qnode_t * qnode_create(void * val){
     return node;
 }
 
+void * qnode_val(qnode_t * node){
+    assert(node != NULL && "node pointer is NULL");
+    void * val = node->val;
+
+    free(node);
+    return val;
+}
+
 void queue_insert(queue_t * q, void * val){
     assert(q != NULL && "queue_t pointer is NULL");
     qnode_t * node = qnode_create(val);
@@ -30,7 +38,26 @@ void queue_insert(queue_t * q, void * val){
     }
 
     q->tail->next = node;
+    q->tail = node;
 }
+
+
+qnode_t * queue_pop(queue_t * q){
+    if(queue_empty(q)) return NULL;
+    
+    qnode_t * aux;
+    aux = q->head;
+
+    if(aux == q->tail){
+        q->head = q->tail = NULL;
+        return aux;
+    }
+
+    q->head = q->head->next;
+    aux->next = NULL;
+    return aux;
+}
+
 
 unsigned int queue_empty(queue_t * q){
     assert(q != NULL && "q pointer is NULL");

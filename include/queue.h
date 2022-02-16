@@ -15,8 +15,10 @@ struct queue_s {
 };
 
 qnode_t * qnode_create(void * val);
+void * qnode_val(qnode_t * node);
 void queue_init(queue_t * q);
 void queue_insert(queue_t * q, void * val);
+qnode_t * queue_pop(queue_t * q);
 
 unsigned int queue_empty(queue_t * q);
 
