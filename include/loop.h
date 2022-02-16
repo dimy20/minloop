@@ -2,8 +2,8 @@
 #define LOOP_H
 
 #include <sys/epoll.h>
-#include "../include/core.h"
-#include "../include/queue.h"
+#include "core.h"
+#include "queue.h"
 
 #define MAX_EVENTS 1024
 #define TEMP_TIMEOUT 0 /*This will be removed later*/
@@ -20,5 +20,8 @@ struct loop_s {
 void loop_init(loop_t * loop);
 void loop_start(loop_t * loop);
 void poll_io(loop_t * loop);
+void loop_run_cb(loop_t * loop, int fd);
+void loop_watch_fd(loop_t * loop, int fd);
+void io_start(loop_t * loop, io_core_t * ioc);
 
 #endif
