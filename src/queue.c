@@ -60,7 +60,7 @@ qnode_t * queue_pop(queue_t * q){
 }
 
 
-unsigned int queue_empty(queue_t * q){
+unsigned int queue_empty(const queue_t * q){
     assert(q != NULL && "q pointer is NULL");
     return (q->tail == NULL && q->head == NULL);
 }
