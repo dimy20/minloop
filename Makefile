@@ -17,6 +17,10 @@ TEST_SRCS= $(wildcard $(TEST_DIR)/*.c)
 TEST_BIN=$(patsubst $(TEST_DIR)/%.c, $(TEST_DIR)/bin/%, $(TEST_SRCS))
 TEST_OBJS=$(patsubst $(TEST_DIR)/%.c, $(TEST_DIR)/%.o, $(TEST_SRCS))
 
+
+run_test:
+	for test in $(TEST_BIN); do ./$$test ; done
+
 tests: $(SRC_OBJS) $(TEST_BIN)
 	for test in $(TEST_BIN); do ./$$test ; done
 

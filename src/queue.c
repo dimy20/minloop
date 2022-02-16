@@ -28,17 +28,18 @@ void * qnode_val(qnode_t * node){
     return val;
 }
 
-void queue_insert(queue_t * q, void * val){
+void * queue_insert(queue_t * q, void * val){
     assert(q != NULL && "queue_t pointer is NULL");
     qnode_t * node = qnode_create(val);
 
     if(queue_empty(q)){
         q->tail = q->head = node;
-        return;
+        return node->val;
     }
 
     q->tail->next = node;
     q->tail = node;
+    return node->val;
 }
 
 
