@@ -4,7 +4,6 @@
 #include "../include/error.h"
 
 
-
 void queue_init(queue_t * q){
     assert(q != NULL && "q is NULL");
     q->size = 0;

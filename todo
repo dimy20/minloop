@@ -11,8 +11,9 @@ loop:
         3-> find events
         4-> run callbacks
 
+    Implement io_watchers array []
     Implement fd array []
-    Implement peding queue []
+    Implement pending queue [x]
 
 
 

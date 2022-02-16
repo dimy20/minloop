@@ -6,22 +6,20 @@
 
 #include "../include/loop.h"
 #include "../include/error.h"
+#include "../include/queue.h"
 
 void loop_init(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
     int ret;
     memset(loop, 0, sizeof(loop_t));
 
-
-
+    queue_init(loop->pending_q);
 
     ret = epoll_create1(0);
     error_exit(ret, "Failed to create epoll instance");
 
     loop->efd = ret;
-
     loop->io_watchers = NULL;
-    loop->pending = NULL;
     loop->poll_fds = NULL;
 }
 

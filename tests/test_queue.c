@@ -11,8 +11,6 @@ void init_test_values(int * values){
     }
 }
 
-
-
 void test_qnode_create(void){
     int * values;
     init_test_values(values);
