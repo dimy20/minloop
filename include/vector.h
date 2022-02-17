@@ -16,6 +16,6 @@ struct vector_s {
 void vector_init(vector_t * vec, size_t size);
 void vector_free(vector_t * vec);
 unsigned int vector_maybe_resize(vector_t * vec);
-unsigned int vector_insert(vector_t * vec, int index, io_core_t * ioc);
+int vector_insert(vector_t * vec, int index, io_core_t * ioc);
 
 #endif

@@ -35,7 +35,7 @@ void test_vector_insert(void){
 	int fake_fd, ret;
 
 	vector_t * vec = create_sample_vector(size);
-	for(int i = 0; i < 100;i++){
+	for(int i = 0; i < 40;i++){
 		fake_fd = i;
 		ret = vector_insert(vec, fake_fd, create_sample_io(fake_fd));
 		TEST_ASSERT(ret == (fake_fd + 1));

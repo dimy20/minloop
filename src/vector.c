@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
+#include <string.h>
 #include "../include/vector.h"
 #include "../include/error.h"
 
@@ -24,7 +26,7 @@ void vector_init(vector_t * vec, size_t size){
 	}
 }
 
-unsigned int vector_insert(vector_t * vec, int index, io_core_t * ioc){
+int vector_insert(vector_t * vec, int index, io_core_t * ioc){
 	assert(vec != NULL && "vector_t pointer is NULL");
 	assert(index >= 0 && "Invalid index");
 	assert(vec->arr != NULL && "Invalid vector");
@@ -33,7 +35,11 @@ unsigned int vector_insert(vector_t * vec, int index, io_core_t * ioc){
 	ret = vector_maybe_resize(vec);
 	if(ret == 0)
 		assert(index < vec->size);
-	
+
+	if( vec->arr[index] != NULL ){
+		return -EIO_BUSY;
+	}
+
 	vec->arr[index] = ioc;
 	vec->count++;
 
@@ -44,14 +50,18 @@ unsigned int vector_insert(vector_t * vec, int index, io_core_t * ioc){
 unsigned int vector_maybe_resize(vector_t * vec){
 	assert(vec != NULL && "vector_t pointer is NULL");
 
-	size_t new_size;
+	size_t new_size, diff;
 
-	new_size = vec->count * 2;
+	assert(vec->count <= vec->size && "Element count should nevet exceed size");
 
-	if( new_size > vec->size || vec->size == vec->count){
-		vec->arr = realloc(vec->arr, new_size);
-		error_malloc(vec->arr);
-		vec->size = new_size;
+	if( vec->count + 1 == vec->size ){
+		new_size = vec->size * 2;
+		vec->arr = realloc(vec->arr, new_size * sizeof(io_core_t *));
+		diff = new_size - vec->size;
+
+		/*Initialize all new pointers to NULL*/
+		memset(vec->arr + vec->size, 0, diff * sizeof(io_core_t *));
+		vec->size += new_size;
 		return 1;
 	}
 
