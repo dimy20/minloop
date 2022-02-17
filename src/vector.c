@@ -61,7 +61,7 @@ unsigned int vector_maybe_resize(vector_t * vec){
 
 		/*Initialize all new pointers to NULL*/
 		memset(vec->arr + vec->size, 0, diff * sizeof(io_core_t *));
-		vec->size += new_size;
+		vec->size = new_size;
 		return 1;
 	}
 
