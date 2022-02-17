@@ -21,8 +21,11 @@ void loop_init(loop_t * loop){
     ret = epoll_create1(0);
     error_exit(ret, "Failed to create epoll instance");
 
+	vector_init(&loop->io_watchers, 0);
+
+	loop->fd_count = 0;
     loop->efd = ret;
-    loop->io_watchers = NULL;
+
     loop->poll_fds = NULL;
 }
 
@@ -139,4 +142,5 @@ void io_start(loop_t * loop, io_core_t *ioc){
     queue_insert(loop->pending_q, ioc);
 
 };
+
 

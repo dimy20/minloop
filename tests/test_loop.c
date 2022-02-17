@@ -10,7 +10,7 @@ void test_loop_init(void){
 	TEST_ASSERT_(loop.efd >= 0, "epoll instance fd is invalid");
 	TEST_ASSERT_(loop.pending_q != NULL, "loop's pending queue is NULL");
 	TEST_ASSERT_(queue_empty(loop.pending_q), "queue has to be empty at init");
-	TEST_ASSERT_(loop.io_watchers == NULL, "io watcher");
+	//TEST_ASSERT_(loop.io_watchers == NULL, "io watcher");
 	TEST_ASSERT_(loop.poll_fds == NULL, "poll_fds");
 
 	loop_free(&loop);
