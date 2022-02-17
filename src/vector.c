@@ -51,12 +51,14 @@ unsigned int vector_maybe_resize(vector_t * vec){
 	if( new_size > vec->size || vec->size == vec->count){
 		vec->arr = realloc(vec->arr, new_size);
 		error_malloc(vec->arr);
+		vec->size = new_size;
 		return 1;
 	}
 
 	return 0;
 }
 
+/*Finish this*/
 void vector_free(vector_t * vec){
 	assert(vec != NULL && "vec is NULL");
 	free(vec->arr);
