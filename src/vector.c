@@ -68,7 +68,13 @@ unsigned int vector_maybe_resize(vector_t * vec){
 	return 0;
 }
 
-/*Finish this*/
+/*Freeing the memory that is being held by each pointer
+ * in the vector's array is the responsibility of the caller.
+ * vector_free will just release the size-dynamically-allocated pointers,
+ * So if the caller doesnt free any io_core_t's the migth be left in the
+ * vector before calling vector_free, they will definitely be lost.
+ * The same applies to the vec pointer.*/
+
 void vector_free(vector_t * vec){
 	assert(vec != NULL && "vec is NULL");
 	free(vec->arr);
