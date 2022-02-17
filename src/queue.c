@@ -4,8 +4,12 @@
 #include "../include/error.h"
 
 
+/*Caller is responsible of allocating and claiming back resources.
+ * queue_init does not allocate any memory for queue_t object.*/
 void queue_init(queue_t * q){
     assert(q != NULL && "q is NULL");
+
+	memset(q, 0, sizeof(*q));
     q->size = 0;
     q->head = q->tail = NULL;
 }
