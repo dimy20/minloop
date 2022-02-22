@@ -16,6 +16,7 @@ void test_loop_init(void){
 	loop_free(&loop);
 };
 
+
 TEST_LIST = {
 	{"void loop_init(loop_t * loop)", test_loop_init},
 	{0}
