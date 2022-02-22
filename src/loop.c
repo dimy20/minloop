@@ -158,6 +158,7 @@ int loop_start_io(loop_t * loop, io_core_t *ioc){
     assert(ioc != NULL && "io_core_t * is NULL");
 	void * ret;
     ret = queue_insert(loop->pending_q, ioc);
+	/*Assertion makes this unreachable*/
 	if( ret == NULL )
 		return -EIO_START;
 
@@ -174,9 +175,11 @@ int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
 	}
 
 	ret = loop_start_io(loop, peer);
-	/*io_core_t * should be deleted */
-	if( ret < 0 ){
-		printf("figure out\n");
+	/*Assertion in loop_start_io makes this impossible now,
+	 * but if more logic is added to loop_start_io later,
+	 * this might become necessary*/
+	if( ret < 0 && ret == -EIO_START){
+		queue_insert(loop->cleanip_q, peer);
 	}
 
 	return OP_SUCCESS;

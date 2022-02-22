@@ -36,8 +36,8 @@ Accepting network io:
 
 		
 
-[] When should queue_insert fail?
-[] Clean up when io_start fails
+[x] When should queue_insert fail?
+[x] Clean up when io_start fails
 [] Loop cleanup
 	Options:
 		Since we are following parent allocates => parent frees.

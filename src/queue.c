@@ -34,6 +34,8 @@ void * qnode_val(qnode_t * node){
 
 void * queue_insert(queue_t * q, void * val){
     assert(q != NULL && "queue_t pointer is NULL");
+	if(val == NULL) return NULL;
+
     qnode_t * node = qnode_create(val);
 
     if(queue_empty(q)){
