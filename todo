@@ -3,19 +3,31 @@ core:
 loop:
     define basic structures [x]
     Bring in epoll and initialisze loop [x]
-    set up main loop []
-        1-> mechanism to initialize descriptors 
+    set up main loop [x]
+        1-> mechanism to initialize descriptors [x]
     2-> poll_io 
-        1-> Add any descriptors in the pending list to the poll_fds array
-        2-> poll for io
-        3-> find events
-        4-> run callbacks
+        1-> Add any descriptors in the pending list to the poll_fds array []
+        2-> poll for io [x]
+        3-> find events [x]
+        4-> run callbacks [x]
 
-    Implement io_watchers array []
+
     Implement fd array []
+    Implement io_watchers array [x] - vector_t
     Implement pending queue [x]
 
 
+Accepting network io:
+	The same function will be used to accept both tcp and udp connection.
+		loop_accept(io_core_t * ioc, io_core_t * accepted);
+		Internally this function will branch into two different behaviours
+		depending on wether it is a tcp or udp socket.
+		
+		for tcp : __accept()
+		for udp : __wait()
+
+
+		
 
 
 

@@ -120,7 +120,7 @@ void loop_run_cb(loop_t * loop, int fd){
 
 }
 
-void loop_watch_io(loop_t * loop,io_core_t * ioc){
+void loop_watch_io(loop_t * loop, io_core_t * ioc){
     struct epoll_event ev;
     int ret;
 
@@ -143,4 +143,15 @@ void io_start(loop_t * loop, io_core_t *ioc){
 
 };
 
+int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
+    assert(loop != NULL && "loop_t pointer loop is NULL");
 
+	int ret;
+	ret = __io_accept(server->fd, peer);
+	if(ret < 0 && ret == -EIO_ACCEPT_FAIL){
+		perror("accept() -> Failed to accept connection\n");
+	}
+
+	return OP_SUCCESS;
+	
+}
