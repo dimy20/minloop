@@ -80,3 +80,15 @@ void vector_free(vector_t * vec){
 	free(vec->arr);
 }
 
+
+io_core_t * vector_remove(vector_t * vec, int index){
+	assert(vec != NULL && "vec is NULL");
+	assert(index >= 0);
+	assert(index < vec->size);
+	
+	io_core_t * val;
+	val = vec->arr[index];
+	vec->arr[index] = NULL;
+	vec->count--;
+	return val;
+}
