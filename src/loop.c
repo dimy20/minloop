@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 
 #include "../include/loop.h"
@@ -80,6 +81,7 @@ void poll_io(loop_t * loop){
 
         val = loop_watch_io(loop, ioc);
 		if(val < 0 && val == -EIO_EPOLL_CTL){
+			/*clean up*/
 			printf("handle error here\n");
 		}
 
@@ -126,6 +128,7 @@ void loop_run_cb(loop_t * loop, int fd){
 }
 
 int loop_watch_io(loop_t * loop, io_core_t * ioc){
+	assert(loop->efd != ioc->fd && "epoll should never watch itself");
     struct epoll_event ev;
     int ret;
 
@@ -135,10 +138,11 @@ int loop_watch_io(loop_t * loop, io_core_t * ioc){
 	
     ret = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev);
 	if(ret == -1){
-		perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
-		return -EIO_EPOLL_CTL;
+		if(errno != EEXIST){ /*ignore this one*/
+			perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
+			return -EIO_EPOLL_CTL;
+		}
 	}
-
 	return OP_SUCCESS;
 }
 

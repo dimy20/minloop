@@ -17,6 +17,13 @@ loop:
     Implement pending queue [x]
 
 
+loop:
+	Loop will have a "cleaning queue".
+		All io_core_t that present errors, spired or die will be pushed to this
+		queue, on every iteration the loop checks if this queue has items.
+		If it does it does the neccesary cleaning.
+
+
 Accepting network io:
 	The same function will be used to accept both tcp and udp connection.
 		loop_accept(io_core_t * ioc, io_core_t * accepted);
