@@ -58,6 +58,7 @@ void loop_start(loop_t * loop){
     while(1){
         printf("loop running\n");
         poll_io(loop);
+		loop_clean_up(loop);
     }
 }
 
@@ -179,7 +180,7 @@ int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
 	 * but if more logic is added to loop_start_io later,
 	 * this might become necessary*/
 	if( ret < 0 && ret == -EIO_START){
-		queue_insert(loop->cleanip_q, peer);
+		queue_insert(loop->cleanup_q, peer);
 	}
 
 	return OP_SUCCESS;
