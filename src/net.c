@@ -15,17 +15,24 @@
 #include "../include/net.h"
 #include <error.h>
 
-void hello(){
-    printf("hello world\n");
+int check(int ret,char * err_msg,u_int8_t exflg){
+    if(ret < 0){
+        perror(err_msg);
+        if((exflg & EXIT_FAILURE))
+            exit(EXIT_FAILURE);
+    }
+    return 0;
 }
 
 int file_exists(char * filename){
     int ret = 1;
     struct stat s;
     ret = stat(filename,&s);
-    if(!(errno & ENOENT)){
-        check(ret,"stat",EXIT_FAILURE);
-    }
+	if(ret< 0){
+		if(!(errno & ENOENT)){
+			perror("stat");
+		}
+	}
     return (ret == 0);
 }
 
@@ -38,7 +45,10 @@ int net_tcp_server(char * port){
     int ret, fd, yes = 1;
 
     ret = getaddrinfo(NULL,port,&hints,&servinfo);
-    check(ret,"net.c:getaddrinfo",EXIT_FAILURE);
+	if(ret < 0){
+		perror("net.c:getaddrinfo");
+		exit(EXIT_FAILURE);
+	}
 
     /*
     if((status = getaddrinfo(NULL,port,&hints,&servinfo)) != 0){
@@ -48,19 +58,26 @@ int net_tcp_server(char * port){
 
     for(p = servinfo; p!= NULL;p = p->ai_next){
         fd = socket(p->ai_family,p->ai_socktype,p->ai_protocol);
-        if(check(fd,"net.c:socket",0) == -1){
-            continue;
-        }
+		if(fd < 0){
+			perror("net.c:socket");
+			continue;
+
+		}
+
         ret = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int));
 
-		check(ret,"net.c:setsockop",EXIT_FAILURE);
+		if(ret < 0){
+			perror("net.c:setcokop");
+			exit(EXIT_FAILURE);
+		}
 
+        ret = bind(fd, p->ai_addr, p->ai_addrlen);
 
-        ret = bind(fd,p->ai_addr,p->ai_addrlen);
+		if(ret < 0){
+			perror("net.c:bind");
+			continue;
+		}
 
-        if(check(fd,"net.c:bind",0) == -1){
-            continue;
-        }
         break;
     }
 
@@ -70,7 +87,10 @@ int net_tcp_server(char * port){
     }
 
     ret = listen(fd,BACKLOG);
-    check(ret,"listen",EXIT_FAILURE);
+	if(ret < 0){
+		perror("net.c:listen");
+		exit(EXIT_FAILURE);
+	}
 
     freeaddrinfo(servinfo);
 
@@ -97,7 +117,6 @@ int net_create_server_usock(char * socket_name){
 
     /*get a unix socket*/
     usocket_fd = socket(AF_UNIX,SOCK_STREAM,0);
-
     check(usocket_fd,"net.c:socket",EXIT_FAILURE);
 
     /*For portability reasons*/
