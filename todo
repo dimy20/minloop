@@ -36,6 +36,15 @@ Accepting network io:
 
 		
 
+[] When should queue_insert fail?
+[] Clean up when io_start fails
+[] Loop cleanup
+	Options:
+		Since we are following parent allocates => parent frees.
+		We cannot call free on io_core_t's allocated by the user.
+		Insted what we will do is fire an error event on this resource.
+
+
 
 
 

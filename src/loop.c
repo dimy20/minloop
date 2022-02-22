@@ -4,6 +4,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <unistd.h>
 
 
 #include "../include/loop.h"
@@ -18,6 +19,7 @@ void loop_init(loop_t * loop){
 	loop->pending_q = malloc(sizeof(queue_t));
 
     queue_init(loop->pending_q);
+	queue_init(loop->cleanup_q);
 
     ret = epoll_create1(0);
     error_exit(ret, "Failed to create epoll instance");
@@ -81,7 +83,8 @@ void poll_io(loop_t * loop){
 
         val = loop_watch_io(loop, ioc);
 		if(val < 0 && val == -EIO_EPOLL_CTL){
-			/*clean up*/
+			/*This io_core_t is now considered unhealty*/
+			queue_insert(loop->cleanup_q, ioc);	
 			printf("handle error here\n");
 		}
 
@@ -143,6 +146,11 @@ int loop_watch_io(loop_t * loop, io_core_t * ioc){
 			return -EIO_EPOLL_CTL;
 		}
 	}
+
+	ret = vector_insert(&loop->io_watchers, ioc->fd, ioc);
+	if(ret < 0 && ret == -EIO_BUSY){
+		printf("Handle this error\n");
+	}
 	return OP_SUCCESS;
 }
 
@@ -173,4 +181,17 @@ int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
 
 	return OP_SUCCESS;
 	
+}
+
+int loop_clean_up(loop_t * loop){
+	assert(loop != NULL && "loop_t pointer loop is NULL");
+	qnode_t * node;
+	io_core_t * ioc;
+	while(!queue_empty(loop->cleanup_q)){
+		node = queue_pop(loop->cleanup_q);
+		ioc = qnode_val(node);
+		vector_remove(&loop->io_watchers, ioc->fd);
+		close(ioc->fd);
+	}
+	return OP_SUCCESS;
 }

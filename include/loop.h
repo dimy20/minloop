@@ -14,7 +14,7 @@ typedef struct loop_s loop_t;
 
 struct loop_s {
     int efd;
-	queue_t * unhealty_q; /*unhealty resources will be queued here for clean up*/
+	queue_t * cleanup_q; /*unhealty resources will be queued here for clean up*/
     queue_t * pending_q;
 	vector_t io_watchers;
 	int fd_count;
@@ -28,6 +28,7 @@ void poll_io(loop_t * loop);
 void loop_run_cb(loop_t * loop, int fd);
 int loop_watch_io(loop_t * loop, io_core_t * ioc);
 int loop_start_io(loop_t * loop, io_core_t * ioc);
-
+int loop_clean_up(loop_t * loop);
 
 #endif
+

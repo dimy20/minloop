@@ -23,6 +23,7 @@ qnode_t * qnode_create(void * val){
     return node;
 }
 
+/*free here or at the parent?*/
 void * qnode_val(qnode_t * node){
     assert(node != NULL && "node pointer is NULL");
     void * val = node->val;
@@ -44,6 +45,7 @@ void * queue_insert(queue_t * q, void * val){
     q->tail = node;
     return node->val;
 }
+
 
 
 qnode_t * queue_pop(queue_t * q){
