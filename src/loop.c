@@ -69,6 +69,7 @@ void poll_io(loop_t * loop){
     /*Add all io_cores waiting to be included in the loop*/
 	
     while(!queue_empty(loop->pending_q)){
+		int val;
         qnode_t * node;
         io_core_t * ioc;
 
@@ -76,7 +77,11 @@ void poll_io(loop_t * loop){
         ioc = (io_core_t *)qnode_val(node);
         
         assert(ioc != NULL && "io_core_t pointer is NULL");
-        loop_watch_io(loop, ioc);
+
+        val = loop_watch_io(loop, ioc);
+		if(val < 0 && val == -EIO_EPOLL_CTL){
+			printf("handle error here\n");
+		}
 
     }
 
@@ -120,7 +125,7 @@ void loop_run_cb(loop_t * loop, int fd){
 
 }
 
-void loop_watch_io(loop_t * loop, io_core_t * ioc){
+int loop_watch_io(loop_t * loop, io_core_t * ioc){
     struct epoll_event ev;
     int ret;
 
@@ -129,18 +134,22 @@ void loop_watch_io(loop_t * loop, io_core_t * ioc){
     ev.events = ioc->events;
 	
     ret = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev);
-
 	if(ret == -1){
-		error_log("failed to add io_core to loop");
+		perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
+		return -EIO_EPOLL_CTL;
 	}
 
-    error_exit(ret, "epoll_ctl");
+	return OP_SUCCESS;
 }
 
-void io_start(loop_t * loop, io_core_t *ioc){
+int loop_start_io(loop_t * loop, io_core_t *ioc){
     assert(ioc != NULL && "io_core_t * is NULL");
-    queue_insert(loop->pending_q, ioc);
+	void * ret;
+    ret = queue_insert(loop->pending_q, ioc);
+	if( ret == NULL )
+		return -EIO_START;
 
+	return OP_SUCCESS;
 };
 
 int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
@@ -148,8 +157,14 @@ int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
 
 	int ret;
 	ret = __io_accept(server->fd, peer);
-	if(ret < 0 && ret == -EIO_ACCEPT_FAIL){
+	if(ret < 0 && ret == -EIO_ACCEPT){
 		perror("accept() -> Failed to accept connection\n");
+	}
+
+	ret = loop_start_io(loop, peer);
+	/*io_core_t * should be deleted */
+	if( ret < 0 ){
+		printf("figure out\n");
 	}
 
 	return OP_SUCCESS;

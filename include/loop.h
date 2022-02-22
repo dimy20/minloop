@@ -25,8 +25,8 @@ void loop_free(loop_t * loop);
 void loop_start(loop_t * loop);
 void poll_io(loop_t * loop);
 void loop_run_cb(loop_t * loop, int fd);
-void loop_watch_io(loop_t * loop, io_core_t * ioc);
-void io_start(loop_t * loop, io_core_t * ioc);
+int loop_watch_io(loop_t * loop, io_core_t * ioc);
+int loop_start_io(loop_t * loop, io_core_t * ioc);
 
 
 #endif
