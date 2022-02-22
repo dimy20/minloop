@@ -195,6 +195,7 @@ int loop_clean_up(loop_t * loop){
 		node = queue_pop(loop->cleanup_q);
 		ioc = qnode_val(node);
 		vector_remove(&loop->io_watchers, ioc->fd);
+		ioc->status = EV_ERROR;
 		close(ioc->fd);
 	}
 	return OP_SUCCESS;
