@@ -36,14 +36,22 @@ Accepting network io:
 
 		
 
-[x] When should queue_insert fail?
-[x] Clean up when io_start fails
+-Todo-
+	[] Implement streams support (tcp)
+		[] refactor the net module
+		[] define the structure 
+		[] add the buffers
+		[] on connection?
+
 [] Loop cleanup
 	Options:
 		Since we are following parent allocates => parent frees.
 		We cannot call free on io_core_t's allocated by the user.
 		Insted what we will do is fire an error event on this resource.
 
+-Done-
+[x] When should queue_insert fail?
+[x] Clean up when io_start fails
 
 
 
