@@ -30,6 +30,7 @@ void test_queue_insert(void){
         TEST_CHECK(queue_insert(&q, values + i) == values + i);
     }
 
+	TEST_ASSERT(q.size == NODES_N);
 }
 
 void test_queue_empty(void){
@@ -52,13 +53,16 @@ void test_queue_pop(void){
 
     for(int i = 0; i< NODES_N; i++){
         queue_insert(&q, values + i);
+		TEST_ASSERT(q.size == i + 1);
     }
 
     for(int i = 0; i < NODES_N; i++){
         TEST_CHECK(qnode_val(queue_pop(&q)) == values + i);
+		TEST_ASSERT(q.size == NODES_N - i);
     }
 
     TEST_ASSERT(q.tail == q.head);
+	TEST_ASSERT(q.size == 0);
 
 }
 
