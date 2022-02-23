@@ -43,11 +43,6 @@ void test_loop_start_io(void){
 	}
 
 	TEST_ASSERT(!queue_empty(loop.pending_q));
-	TEST_ASSERT(loop.pending_q->size == ELEMS);
-
-
-	
-	
 
 }
 
