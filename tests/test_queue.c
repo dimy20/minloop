@@ -32,21 +32,15 @@ void test_queue_nodes( void ){
 		queue_insert(q, vals + i);
 	}
 
+	/*Assert that all nodes are linked correctly*/
 	qnode_t * p;
 	p = q->head;
 	int i = 0;
 	while(p != NULL){
-		printf("%p = %p, %d \n", p->val, vals + i, p->val == vals + i);
 		TEST_ASSERT(p->val == vals + i);
-		if(p->next != NULL){
-			printf("%d ->", *(int *)p->val);
-		}else{
-			printf("%d\n", *(int *)p->val);
-		}
 		p = p->next;
 		i++;
 	}
-	
 }
 
 void test_queue_insert(void){
