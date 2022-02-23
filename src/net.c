@@ -58,10 +58,10 @@ int net_tcp_server(char * port){
 
     for(p = servinfo; p!= NULL;p = p->ai_next){
         fd = socket(p->ai_family,p->ai_socktype,p->ai_protocol);
+
 		if(fd < 0){
 			perror("net.c:socket");
 			continue;
-
 		}
 
         ret = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int));

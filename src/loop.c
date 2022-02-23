@@ -109,29 +109,6 @@ void poll_io(loop_t * loop){
 
 }
 
-void loop_run_cb(loop_t * loop, int fd){
-    assert(loop != NULL && "loop is NULL"); 
-    struct epoll_event ev[MAX_EVENTS];
-
-    memset(&ev, 0, sizeof(struct epoll_event));
-
-    int ret;
-
-    ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
-    error_exit(ret, "epoll_wait");
-
-    for(int i = 0; i < ret; i++){
-        if(ev[i].events & EPOLLIN){
-            printf("EPOLLIN event \n");
-        }
-
-        if(ev[i].events & EPOLLOUT){
-            printf("EPOLLOUT event \n");
-        }
-    }
-
-}
-
 int loop_watch_io(loop_t * loop, io_core_t * ioc){
 	assert(loop->efd != ioc->fd && "epoll should never watch itself");
     struct epoll_event ev;
