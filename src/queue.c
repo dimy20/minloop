@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <string.h>
 #include "../include/queue.h"
 #include "../include/error.h"
 

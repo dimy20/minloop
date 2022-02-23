@@ -42,14 +42,17 @@ void test_loop_start_io(void){
 		TEST_ASSERT(ret == OP_SUCCESS);
 	}
 
+
+
 	TEST_ASSERT(!queue_empty(loop.pending_q));
+	TEST_ASSERT(loop.pending_q->size == ELEMS);
 
 }
 
 
 TEST_LIST = {
 	{"void loop_init(loop_t * loop)", test_loop_init},
-	{"test",test_loop_start_io},
+	{"loop_start_io",test_loop_start_io},
 	{0}
 };
 
