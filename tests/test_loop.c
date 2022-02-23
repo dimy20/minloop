@@ -6,6 +6,17 @@
 #define ELEMS 20
 #define NOEVENTS 0 
 
+io_core_t ** io_core_array(int len){
+	int fd;
+	io_core_t ** ret = malloc(sizeof(io_core_t *) * len);
+	for(int i = 0; i < len; i++){
+		ret[i] = malloc(sizeof(io_core_t));
+		fd = i + 1;
+		io_core_init(ioc, fd, NOEVENTS);
+	}
+	return ret;
+}
+
 io_core_t * create_sample_io(int fd){
 	io_core_t * ioc = malloc(sizeof(io_core_t));
 	io_core_init(ioc, fd, NOEVENTS);
@@ -47,6 +58,14 @@ void test_loop_start_io(void){
 	TEST_ASSERT(!queue_empty(loop.pending_q));
 	TEST_ASSERT(loop.pending_q->size == ELEMS);
 
+	/*Assert that all nodes are linked correctly*/
+	qnode_t * p;
+	p = loop.pending_q->head;
+	int i = 0;
+	while(p != NULL){
+		TEST_ASSERT(p->val == vals[i++]);
+		p = p->next;
+	}
 }
 
 
