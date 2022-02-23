@@ -17,6 +17,7 @@ void loop_init(loop_t * loop){
 
     memset(loop, 0, sizeof(loop_t));
 	loop->pending_q = malloc(sizeof(queue_t));
+	loop->cleanup_q = malloc(sizeof(queue_t));
 
     queue_init(loop->pending_q);
 	queue_init(loop->cleanup_q);
