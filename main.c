@@ -17,7 +17,6 @@ vector_t * create_sample_vector(size_t size){
 }
 
 int main(){
-
 	size_t size = 0;
 	int fake_fd, ret;
 
