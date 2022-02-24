@@ -136,7 +136,7 @@ int qc_buffer_send(int fd, qc_buffer_t * buff){
     }
     return res;
 }
-void qc_buffer_debug(qc_buffer_t * buff, u_int8_t flag){
+void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
     if( flag & DEBUG_RAW_BYTES ){
         for(int i = buff->start; i < buff->size; i++){
             printf("%d ",buff->buff[i]);
