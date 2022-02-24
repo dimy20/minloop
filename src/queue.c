@@ -36,7 +36,10 @@ void * queue_insert(queue_t * q, void * val){
     assert(q != NULL && "queue_t pointer is NULL");
 	if(val == NULL) return NULL;
 
-    qnode_t * node = qnode_create(val);
+    qnode_t * node;
+
+	node = qnode_create(val);
+	q->size++;
 
     if(queue_empty(q)){
         q->tail = q->head = node;
@@ -56,6 +59,7 @@ qnode_t * queue_pop(queue_t * q){
     qnode_t * aux;
     aux = q->head;
 
+	q->size--;
     if(aux == q->tail){
         q->head = q->tail = NULL;
         return aux;
