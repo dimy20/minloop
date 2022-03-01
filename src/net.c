@@ -15,6 +15,8 @@
 #include "../include/net.h"
 #include <error.h>
 
+#define NET_ERR(x) (-(x))
+
 int check(int ret,char * err_msg,u_int8_t exflg){
     if(ret < 0){
         perror(err_msg);
@@ -36,6 +38,26 @@ int file_exists(char * filename){
     return (ret == 0);
 }
 
+
+int new_socket(int family, int socktype, int protocol){
+
+	int fd, ret;
+	fd = socket(family, socktype, protocol);
+
+	if(fd < 0){
+		perror("socket");
+		return NET_ERR(errno);
+	};
+
+	ret = fd_set_nonblocking(fd);
+	if(ret < 0){
+		perror("failed to make socket non-blocking");
+		return NET_ERR(errno);
+	}
+
+	return fd;
+}
+
 int net_tcp_server(char * port){
     struct addrinfo hints, * servinfo, * p;
     memset(&hints,0,sizeof(hints));
@@ -44,17 +66,11 @@ int net_tcp_server(char * port){
     hints.ai_socktype = SOCK_STREAM;
     int ret, fd, yes = 1;
 
-    ret = getaddrinfo(NULL,port,&hints,&servinfo);
+    ret = getaddrinfo(NULL, port, &hints, &servinfo);
 	if(ret < 0){
 		perror("net.c:getaddrinfo");
 		exit(EXIT_FAILURE);
 	}
-
-    /*
-    if((status = getaddrinfo(NULL,port,&hints,&servinfo)) != 0){
-        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(status));
-    }
-    */
 
     for(p = servinfo; p!= NULL;p = p->ai_next){
         fd = socket(p->ai_family,p->ai_socktype,p->ai_protocol);
