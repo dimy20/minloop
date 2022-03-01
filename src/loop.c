@@ -47,7 +47,7 @@ void loop_free(loop_t * loop){
 	};
 
 	free(loop->pending_q);
-
+	free(loop->cleanup_q);
 }
 
 
@@ -83,7 +83,9 @@ void poll_io(loop_t * loop){
         
         assert(ioc != NULL && "io_core_t pointer is NULL");
 
+		/*start watching this ioc*/
         val = loop_watch_io(loop, ioc);
+
 		if(val < 0 && val == -EIO_EPOLL_CTL){
 			/*This io_core_t is now considered unhealty*/
 			queue_insert(loop->cleanup_q, ioc);	
