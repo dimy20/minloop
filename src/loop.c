@@ -115,13 +115,11 @@ int loop_watch_io(loop_t * loop, io_core_t * ioc){
     int ret;
 
     memset(&ev, 0, sizeof(ev));
-    ev.data.fd = ioc->fd;
-    ev.events = ioc->events;
-	
-    ret = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev);
-	if(ret == -1){
-		if(errno != EEXIST){ /*ignore this one*/
-			perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
+    ev.data.fd = ioc->fd; ev.events = ioc->events; 
+	ret = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev); 
+	if(ret == -1){ 
+		if(errno != EEXIST){ 
+			/*ignore this one*/ perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
 			return -EIO_EPOLL_CTL;
 		}
 	}
@@ -154,6 +152,7 @@ int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
 	}
 
 	ret = loop_start_io(loop, peer);
+
 	/*Assertion in loop_start_io makes this impossible now,
 	 * but if more logic is added to loop_start_io later,
 	 * this might become necessary*/
@@ -178,3 +177,5 @@ int loop_clean_up(loop_t * loop){
 	}
 	return OP_SUCCESS;
 }
+
+
