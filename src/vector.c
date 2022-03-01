@@ -92,3 +92,8 @@ io_core_t * vector_remove(vector_t * vec, int index){
 	vec->count--;
 	return val;
 }
+
+int vector_empty(const vector_t * vec){
+	assert(vec != NULL && "vector_t pointer is NULL");
+	return vec->count == 0;
+}

@@ -18,6 +18,7 @@ void vector_free(vector_t * vec);
 unsigned int vector_maybe_resize(vector_t * vec);
 int vector_insert(vector_t * vec, int index, io_core_t * ioc);
 io_core_t * vector_remove(vector_t * vec, int index);
+int vector_empty(const vector_t * vec);
 
 
 #endif
