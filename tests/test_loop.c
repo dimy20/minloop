@@ -32,7 +32,8 @@ void test_loop_init(void){
 	TEST_ASSERT_(loop.pending_q != NULL, "loop's pending queue is NULL");
 	TEST_ASSERT_(queue_empty(loop.pending_q), "pending queue has to be empty at init");
 	TEST_ASSERT_(queue_empty(loop.cleanup_q), "cleanup queue has to be empty at init");
-	//TEST_ASSERT_(loop.io_watchers == NULL, "io watcher");
+	TEST_ASSERT_(vector_empty(&loop.io_watchers), "io watcher");
+
 	loop_free(&loop);
 };
 
