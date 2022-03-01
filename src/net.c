@@ -71,21 +71,19 @@ int net_tcp_server(char * port){
 		perror("net.c:getaddrinfo");
 		exit(EXIT_FAILURE);
 	}
-
-    for(p = servinfo; p!= NULL;p = p->ai_next){
-        fd = socket(p->ai_family,p->ai_socktype,p->ai_protocol);
-
-		if(fd < 0){
-			perror("net.c:socket");
+	
+	p = servinfo;
+	while(p != NULL){
+		fd = new_socket(p->ai_family, p->ai_socktype, p->ai_protocol);
+		if(fd < 0)
 			continue;
-		}
 
         ret = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int));
-
 		if(ret < 0){
-			perror("net.c:setcokop");
+			perror("setsockopt");
 			exit(EXIT_FAILURE);
 		}
+
 
         ret = bind(fd, p->ai_addr, p->ai_addrlen);
 
@@ -94,8 +92,10 @@ int net_tcp_server(char * port){
 			continue;
 		}
 
-        break;
-    }
+		break;
+		p = p->ai_next;
+	}
+
 
     if (p == NULL)  {
         fprintf(stderr, "server: failed to bind\n");
@@ -103,6 +103,7 @@ int net_tcp_server(char * port){
     }
 
     ret = listen(fd,BACKLOG);
+
 	if(ret < 0){
 		perror("net.c:listen");
 		exit(EXIT_FAILURE);
