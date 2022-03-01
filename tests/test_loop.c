@@ -12,7 +12,7 @@ io_core_t ** io_core_array(int len){
 	for(int i = 0; i < len; i++){
 		ret[i] = malloc(sizeof(io_core_t));
 		fd = i + 1;
-		io_core_init(ret + i, fd, NOEVENTS, NULL);
+		io_core_init(ret[i], fd, NOEVENTS, NULL);
 	}
 	return ret;
 }
