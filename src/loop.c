@@ -29,8 +29,6 @@ void loop_init(loop_t * loop){
 
 	loop->fd_count = 0;
     loop->efd = ret;
-
-    loop->poll_fds = NULL;
 }
 
 /*If loop has been allocated on the heap, its the job of the

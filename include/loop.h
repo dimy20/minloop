@@ -18,7 +18,6 @@ struct loop_s {
     queue_t * pending_q;
 	vector_t io_watchers;
 	int fd_count;
-    int * poll_fds;
 };
 
 void loop_init(loop_t * loop);
