@@ -12,14 +12,14 @@ io_core_t ** io_core_array(int len){
 	for(int i = 0; i < len; i++){
 		ret[i] = malloc(sizeof(io_core_t));
 		fd = i + 1;
-		io_core_init(ioc, fd, NOEVENTS);
+		io_core_init(ret + i, fd, NOEVENTS, NULL);
 	}
 	return ret;
 }
 
 io_core_t * create_sample_io(int fd){
 	io_core_t * ioc = malloc(sizeof(io_core_t));
-	io_core_init(ioc, fd, NOEVENTS);
+	io_core_init(ioc, fd, NOEVENTS, NULL);
 	return ioc;
 }
 
@@ -30,10 +30,9 @@ void test_loop_init(void){
 
 	TEST_ASSERT_(loop.efd >= 0, "epoll instance fd is invalid");
 	TEST_ASSERT_(loop.pending_q != NULL, "loop's pending queue is NULL");
-	TEST_ASSERT_(queue_empty(loop.pending_q), "queue has to be empty at init");
+	TEST_ASSERT_(queue_empty(loop.pending_q), "pending queue has to be empty at init");
+	TEST_ASSERT_(queue_empty(loop.cleanup_q), "cleanup queue has to be empty at init");
 	//TEST_ASSERT_(loop.io_watchers == NULL, "io watcher");
-	TEST_ASSERT_(loop.poll_fds == NULL, "poll_fds");
-
 	loop_free(&loop);
 };
 
