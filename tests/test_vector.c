@@ -6,7 +6,7 @@
 
 io_core_t * create_sample_io(int fd){
 	io_core_t * ioc = malloc(sizeof(io_core_t));
-	io_core_init(ioc, fd, NO_EVENTS);
+	io_core_init(ioc, fd, NO_EVENTS, NULL);
 	return ioc;
 }
 
