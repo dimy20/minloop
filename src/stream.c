@@ -2,6 +2,7 @@
 #include <string.h>
 #include "../include/stream.h"
 #include "../include/net.h"
+#include "../include/core.h"
 //#include "../include/loop.h"
 
 	
@@ -12,24 +13,34 @@ void stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 
-	io_core_init(&stream->io_ctl, -1, 0, NULL);
+	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
 	qc_buffer_init(&stream->bufs[IN_BUFF], 0);
 	qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
-	stream->on_connection = NULL;
+	stream->on_connection = NULL; /*this will go in stream_listen*/
 }
 
 
 
-int stream_server(stream_t * stream, char * hostnmae, char * port){
+int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port){
+	assert(loop != NULL && "loop_t pointer is NULL");
 	assert(stream != NULL && "stream_t pointer is NULL");
 
-	int err;
+	int err, ret;
 
-	err = ntcp_server(NULL, "8080");
+	if(stream->io_ctl.fd != IO_OFF)
+		return -EIO_BUSY;
+
+	err = ntcp_server(hostname, port);
+
 	if(err < 0)
 		return err;
 
 	stream->io_ctl.fd = err;
+
+	ret = loop_start_io(loop, &stream->io_ctl);
+
+	if(ret < 0 && ret == -EIO_START)
+		return ret;
 
 	return err;
 }
