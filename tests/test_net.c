@@ -33,6 +33,7 @@ void test_net_tcp_server(void){
 
 	TEST_ASSERT(addr.sin_port != 0);
 	TEST_ASSERT(inet_ntoa(addr.sin_addr) != NULL);
+	TEST_ASSERT(issocket_bound(fd));
 }
 
 
