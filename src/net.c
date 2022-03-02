@@ -60,7 +60,19 @@ int new_socket(int family, int socktype, int protocol){
 	return fd;
 }
 
-int net_tcp_server(char * hostname, char * port){
+int ntcp_listen(int fd, int backlog){
+	int ret;
+
+    ret = listen(fd, BACKLOG);
+	if(ret < 0){
+		perror("net.c:listen");
+		return NET_ERR(errno);
+	}
+
+	return ret;
+}
+
+int ntcp_server(char * hostname, char * port){
 	/*service and node cant be both NULL*/
 	if(hostname == NULL && port == NULL)
 		return -EINVAL;
@@ -114,14 +126,6 @@ int net_tcp_server(char * hostname, char * port){
     }
 
     freeaddrinfo(servinfo);
-
-    ret = listen(fd, BACKLOG);
-
-	if(ret < 0){
-		perror("net.c:listen");
-		return NET_ERR(errno);
-	}
-
     return fd;
 }
 
