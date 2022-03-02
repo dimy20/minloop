@@ -30,17 +30,6 @@ void test_net_tcp_server(void){
 	if(ret < 0){
 		perror("getsockname");
 	}
-
-	/*
-	char * ip = inet_ntoa(addr.sin_addr);
-	printf("ip bound : %s \n", ip);
-
-	printf("port : %d \n", port);
-
-	if(ret < 0){
-		perror("getsockname");
-	}
-	*/
 }
 
 
