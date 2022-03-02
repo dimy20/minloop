@@ -18,4 +18,6 @@ int net_connect_usock(char * sock_name);
 int net_connect(char * host, uint16_t port);
 
 int file_exists(char * filename);
+
+int issocket_bound(int fd);
 #endif

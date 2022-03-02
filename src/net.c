@@ -10,10 +10,12 @@
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h>
-
+#include <assert.h>
+#include <error.h>
 
 #include "../include/net.h"
-#include <error.h>
+
+
 
 #define NET_ERR(x) (-(x))
 
@@ -88,7 +90,7 @@ int net_tcp_server(char * hostname, char * port){
 			exit(EXIT_FAILURE);
 		}
 
-
+		
         ret = bind(fd, p->ai_addr, p->ai_addrlen);
 
 		if(ret < 0){
@@ -100,11 +102,14 @@ int net_tcp_server(char * hostname, char * port){
 		p = p->ai_next;
 	}
 
+
 	/*Reached end of list*/
     if (p == NULL)  {
         fprintf(stderr, "server: failed to bind\n");
         exit(EXIT_FAILURE);
     }
+
+    freeaddrinfo(servinfo);
 
     ret = listen(fd, BACKLOG);
 
@@ -112,8 +117,6 @@ int net_tcp_server(char * hostname, char * port){
 		perror("net.c:listen");
 		exit(EXIT_FAILURE);
 	}
-
-    freeaddrinfo(servinfo);
 
     return fd;
 }
@@ -204,3 +207,24 @@ int net_connect_usock(char * sock_name){
 
    return usocket_fd;
 }
+
+int issocket_bound(int fd){
+	assert(fd >= 0 && "fd must be grater tha 0");
+
+	struct sockaddr_storage addr; 
+	socklen_t len = sizeof(addr);
+	int is_bound, ret;
+
+	ret = getsockname(fd, (struct sockaddr*)&addr, &len);
+
+	if(ret < 0){
+		perror("getsockname");
+		return NET_ERR(errno);
+	}
+
+	is_bound = (addr.ss_family == AF_INET) && (((struct sockaddr_in *)&addr)->sin_port != 0);
+	is_bound |= (addr.ss_family == AF_INET6)&&(((struct sockaddr_in6 *)&addr)->sin6_port != 0);
+
+	return is_bound;
+}
+
