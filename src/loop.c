@@ -111,6 +111,12 @@ void poll_io(loop_t * loop){
 
 int loop_watch_io(loop_t * loop, io_core_t * ioc){
 	assert(loop->efd != ioc->fd && "epoll should never watch itself");
+
+	/*fd is -1 for some reason*/
+	if(ioc->fd == IO_OFF){
+		return IO_OFF;
+	}
+
     struct epoll_event ev;
     int ret;
 
