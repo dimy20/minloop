@@ -22,7 +22,7 @@ void test_net_tcp_server(void){
 	socklen_t len;
 	int fd, ret;
 
-	fd = net_tcp_server(HOSTNAME, PORT);
+	fd = ntcp_server(HOSTNAME, PORT);
 
 	TEST_ASSERT(fd > 0);
 
