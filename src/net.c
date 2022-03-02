@@ -64,6 +64,7 @@ int net_tcp_server(char * hostname, char * port){
 	/*service and node cant be both NULL*/
 	if(hostname == NULL && port == NULL)
 		return -EINVAL;
+
     struct addrinfo hints, * servinfo, * p;
     memset(&hints,0,sizeof(hints));
 
@@ -76,7 +77,7 @@ int net_tcp_server(char * hostname, char * port){
 
 	if(ret < 0){
 		perror("net.c:getaddrinfo");
-		exit(EXIT_FAILURE);
+		return NET_ERR(errno);
 	}
 	
 	p = servinfo;
@@ -90,7 +91,7 @@ int net_tcp_server(char * hostname, char * port){
 
 		if(ret < 0){
 			perror("setsockopt");
-			exit(EXIT_FAILURE);
+			return NET_ERR(errno);
 		}
 
 		
@@ -109,7 +110,7 @@ int net_tcp_server(char * hostname, char * port){
 	/*Reached end of list*/
     if (p == NULL)  {
         fprintf(stderr, "server: failed to bind\n");
-        exit(EXIT_FAILURE);
+		return NET_ERR(errno);
     }
 
     freeaddrinfo(servinfo);
@@ -118,7 +119,7 @@ int net_tcp_server(char * hostname, char * port){
 
 	if(ret < 0){
 		perror("net.c:listen");
-		exit(EXIT_FAILURE);
+		return NET_ERR(errno);
 	}
 
     return fd;
