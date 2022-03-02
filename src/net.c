@@ -58,27 +58,31 @@ int new_socket(int family, int socktype, int protocol){
 	return fd;
 }
 
-int net_tcp_server(char * port){
+int net_tcp_server(char * hostname, char * port){
     struct addrinfo hints, * servinfo, * p;
     memset(&hints,0,sizeof(hints));
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_flags = AI_PASSIVE;
+
+    hints.ai_family = AF_UNSPEC; /*ipv4 or ipv6*/
+    hints.ai_flags = AI_PASSIVE; /* wildcard addr if no node is specified*/
     hints.ai_socktype = SOCK_STREAM;
     int ret, fd, yes = 1;
 
-    ret = getaddrinfo(NULL, port, &hints, &servinfo);
+    ret = getaddrinfo(hostname, port, &hints, &servinfo);
+
 	if(ret < 0){
 		perror("net.c:getaddrinfo");
 		exit(EXIT_FAILURE);
 	}
 	
 	p = servinfo;
+
 	while(p != NULL){
 		fd = new_socket(p->ai_family, p->ai_socktype, p->ai_protocol);
 		if(fd < 0)
 			continue;
 
         ret = setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &yes,sizeof(int));
+
 		if(ret < 0){
 			perror("setsockopt");
 			exit(EXIT_FAILURE);
@@ -96,13 +100,13 @@ int net_tcp_server(char * port){
 		p = p->ai_next;
 	}
 
-
+	/*Reached end of list*/
     if (p == NULL)  {
         fprintf(stderr, "server: failed to bind\n");
         exit(EXIT_FAILURE);
     }
 
-    ret = listen(fd,BACKLOG);
+    ret = listen(fd, BACKLOG);
 
 	if(ret < 0){
 		perror("net.c:listen");

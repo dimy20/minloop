@@ -7,7 +7,7 @@
 #define BACKLOG 20
 int new_socket(int family, int socktype, int protocol);
 
-int net_tcp_server(char * port);
+int net_tcp_server(char * hostname, char * port);
 
 int fd_set_nonblocking(int fd);
 /*Creates a unix domain socket for listening and binds it to sock_name*/
