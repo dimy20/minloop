@@ -8,28 +8,31 @@
 
 
 #define PORT "8080"
+#define HOSTNAME "localhost"
+
 void test_new_socket(void){
 	int fd;
 	fd = new_socket(AF_INET, SOCK_STREAM, 0);
 	TEST_ASSERT(fd > 0);
 	close(fd);
 }
+
 void test_net_tcp_server(void){
 	struct sockaddr_in addr;
 	socklen_t len;
 	int fd, ret;
 
-	fd = net_tcp_server(PORT);
+	fd = net_tcp_server(HOSTNAME, PORT);
 
 	TEST_ASSERT(fd > 0);
 
-	ret = getsockname(fd, (struct sockaddr *)&addr, &len);
-
-	TEST_ASSERT(addr.sin_port != 0);
-
+	ret = getsockname(fd, (struct sockaddr *)&addr, &len);	
 	if(ret < 0){
 		perror("getsockname");
 	}
+
+	TEST_ASSERT(addr.sin_port != 0);
+	TEST_ASSERT(inet_ntoa(addr.sin_addr) != NULL);
 }
 
 
