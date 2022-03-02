@@ -19,7 +19,7 @@ struct stream_s{
 
 void stream_init(loop_t * loop, stream_t * stream);
 /*decide later where the addr and port should be passed + other options*/
-void stream_server(loop_t * loop, stream_t * stream); 
+int stream_server(stream_t * stream, char *hostname, char *port); 
 void stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection);
 	
 
