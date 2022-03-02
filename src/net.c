@@ -61,6 +61,9 @@ int new_socket(int family, int socktype, int protocol){
 }
 
 int net_tcp_server(char * hostname, char * port){
+	/*service and node cant be both NULL*/
+	if(hostname == NULL && port == NULL)
+		return -EINVAL;
     struct addrinfo hints, * servinfo, * p;
     memset(&hints,0,sizeof(hints));
 
@@ -125,14 +128,26 @@ int net_tcp_server(char * hostname, char * port){
 
 
 int fd_set_nonblocking(int fd){
-    if(fd < 0) return -1;
-    int flags = fcntl(fd,F_GETFL,0);
-    if (flags == -1) return -1;
+	if(fd <= 0)
+		return -EINVAL;
+	int flags;
+
+    flags = fcntl(fd,F_GETFL,0);
+    if (flags < 0)
+		return NET_ERR(errno);
+
     flags |= O_NONBLOCK;
-    return fcntl(fd,F_SETFL,flags);
+	flags = fcntl(fd,F_SETFL,flags);
+
+    if (flags < 0)
+		return NET_ERR(errno);
+
+	return flags;
 }
 
 int net_create_server_usock(char * socket_name){
+	if(socket_name == NULL)
+		return -EINVAL;
 
     struct sockaddr_un name_addr;
     int ret;
@@ -166,6 +181,9 @@ int net_create_server_usock(char * socket_name){
 }
 
 int net_connect(char * host, uint16_t port){
+	if(host == NULL || port <=1024)
+		return -EINVAL;
+
     struct sockaddr_in addr;
     int ret;
     int fd;
@@ -186,6 +204,9 @@ int net_connect(char * host, uint16_t port){
 }
 
 int net_connect_usock(char * sock_name){
+   if(sock_name == NULL)
+	   return -EINVAL;
+
    struct sockaddr_un addr;
    int ret;
    int usocket_fd;
