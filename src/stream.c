@@ -3,6 +3,7 @@
 #include "../include/stream.h"
 #include "../include/net.h"
 #include "../include/core.h"
+#include "../include/errno.h"
 //#include "../include/loop.h"
 
 	
@@ -43,6 +44,25 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 		return ret;
 
 	return err;
+}
+
+int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(stream != NULL && "stream_t pointer is NULL");
+	int err;
+
+	if(on_connection == NULL)
+		return -EINVAL;
+
+	stream->on_connection = on_connection;
+
+	err = ntcp_listen(io_core_fd(&stream->io_ctl), 10);
+
+	if(err < 0){
+		return err;
+	}
+
+	return OP_SUCCESS;
 }
 
 
