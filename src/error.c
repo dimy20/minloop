@@ -5,14 +5,17 @@
 #include "../include/error.h"
 #include "../include/core.h"
 
-const char * errstr(unsigned int err_code){
+const char * errstr(int err_code){
+	err_code = err_code < 0 ? err_code*-1 : err_code;
 	switch(err_code){
 		case EIO_START:
 			return EIO_START_STR;
 		case EIO_BUSY:
 			return EIO_BUSY_STR;
+		case EIO_EPOLL_CTL:
+			return EIO_EPOLL_CTL_STR;
 	}
-	return NULL;
+	return "Uknown error code";
 }
 
 void error_log(char * msg){
