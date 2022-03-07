@@ -35,17 +35,16 @@ void qc_buffer_free(qc_buffer_t * buff){
     buff = NULL;
 }
 
-int  qc_buffer_resize(qc_buffer_t * buff, size_t size){
+int qc_buffer_resize(qc_buffer_t * buff, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    buff->size+=size;
-    if((buff->buff = realloc(buff->buff,buff->size)) == NULL){
-        perror("realloc()");
-    }
 
-    #ifdef DEBUG
-        printf("resizing buffer by %ld\n",size);
-    #endif
-    return 0;
+	buff->buff = realloc(buff->buff, size);
+	/*Failed to allocte*/
+	if(buff->buff == NULL && size != 0)
+		return -EALLOC;
+
+    buff->size += size;
+    return OP_SUCCESS;
 }
 
 int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
