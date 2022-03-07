@@ -84,7 +84,7 @@ void poll_io(loop_t * loop){
 		/*start watching this ioc*/
         val = loop_watch_io(loop, ioc);
 
-		if(val < 0 && val == -EIO_EPOLL_CTL){
+		if(val < 0 && val == -EIO_LOOP_WATCH){
 			/*This io_core_t is now considered unhealty*/
 			queue_insert(loop->cleanup_q, ioc);	
 			printf("handle error here\n");
@@ -118,22 +118,26 @@ int loop_watch_io(loop_t * loop, io_core_t * ioc){
 	}
 
     struct epoll_event ev;
-    int ret;
+	int err;
 
     memset(&ev, 0, sizeof(ev));
     ev.data.fd = ioc->fd; ev.events = ioc->events; 
-	ret = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev); 
-	if(ret == -1){ 
-		if(errno != EEXIST){ 
-			/*ignore this one*/ perror("epoll_ctl() -> failed to add io_cores's fd to the loop");
-			return -EIO_EPOLL_CTL;
+	err = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev); 
+
+	if(err == -1){ 
+		if(errno != EEXIST){ /*ignore this one*/
+			err = -EIO_LOOP_WATCH;
+			perror("epoll_ctl");
+			LOG_ERROR(err);
+			return err;
 		}
 	}
 
-	ret = vector_insert(&loop->io_watchers, ioc->fd, ioc);
-	if(ret < 0 && ret == -EIO_BUSY){
-		printf("Handle this error\n");
-	}
+	err = vector_insert(&loop->io_watchers, ioc->fd, ioc);
+
+	if(err < 0)
+		LOG_ERROR(err);
+
 	return OP_SUCCESS;
 }
 
