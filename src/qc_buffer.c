@@ -8,18 +8,27 @@
 #include <assert.h>
 
 #include "../include/qc_buffer.h"
+#include "../include/core.h"
 
-void qc_buffer_init(qc_buffer_t * buff, size_t size){
+int qc_buffer_init(qc_buffer_t * buff, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     memset(buff,0,sizeof(qc_buffer_t));
 
     buff->buff = malloc(sizeof(char) * size);
-    memset(buff->buff,0,sizeof(char) * size); /*initialize this*/
+	/*failed to allocate*/
+	if(buff->buff == NULL && size != 0)
+		return -EALLOC;
+
+	/*initialize this*/
+    memset(buff->buff,0,sizeof(char) * size); 
 
     buff->start = 0;
     buff->end = 0;
     buff->size = size;
+
+	return OP_SUCCESS;
 }
+
 void qc_buffer_free(qc_buffer_t * buff){
     free(buff->buff);
     buff->buff = NULL;

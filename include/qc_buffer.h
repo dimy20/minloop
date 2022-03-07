@@ -16,7 +16,7 @@ typedef struct qc_buffer {
 } qc_buffer_t;
 
 
-void qc_buffer_init(qc_buffer_t * buff, size_t size);
+int qc_buffer_init(qc_buffer_t * buff, size_t size);
 void qc_buffer_free(qc_buffer_t * buff);
 int  qc_buffer_resize(qc_buffer_t * buff, size_t size); /*should this be exposed?*/
 int  qc_buffer_append(qc_buffer_t * buff, char * from , size_t size);
