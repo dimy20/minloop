@@ -1,23 +1,36 @@
 #include <assert.h>
 #include <string.h>
+#include <stdio.h>
+
 #include "../include/stream.h"
 #include "../include/net.h"
 #include "../include/core.h"
 #include "../include/errno.h"
+#include "../include/error.h"
+
 //#include "../include/loop.h"
 
 	
 #define IN_BUFF 0
 #define OUT_BUFF 1
 
-void stream_init(loop_t * loop, stream_t * stream){
+int stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
+	int err;
 
 	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
-	qc_buffer_init(&stream->bufs[IN_BUFF], 0);
-	qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
+	err = qc_buffer_init(&stream->bufs[IN_BUFF], 0);
+	if(err < 0)
+		return err;
+
+	err = qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
+	if(err < 0)
+		return err;
+
 	stream->on_connection = NULL; /*this will go in stream_listen*/
+
+	return OP_SUCCESS;
 }
 
 
@@ -26,10 +39,11 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 	assert(loop != NULL && "loop_t pointer is NULL");
 	assert(stream != NULL && "stream_t pointer is NULL");
 
-	int err, ret;
+	int err;
 
-	if(stream->io_ctl.fd != IO_OFF)
-		return -EIO_BUSY;
+	/*what should the loop do with this io when this happens?*/
+	if(io_core_fd(&stream->io_ctl) != IO_OFF)
+		LOG_ERROR(EIO_BUSY);
 
 	err = ntcp_server(hostname, port);
 
@@ -38,10 +52,10 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 
 	stream->io_ctl.fd = err;
 
-	ret = loop_start_io(loop, &stream->io_ctl);
+	err = loop_start_io(loop, &stream->io_ctl);
 
-	if(ret < 0 && ret == -EIO_START)
-		return ret;
+	if(err < 0)
+		LOG_ERROR(err);
 
 	return err;
 }
