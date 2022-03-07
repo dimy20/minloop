@@ -10,7 +10,7 @@
 #define OUT_BUFF 1 /*out_buff index*/
 
 typedef struct stream_s stream_t;
-typedef void (*connection_cb)(stream_t * peer);
+typedef void (*connection_cb)(stream_t * server);
 
 struct stream_s{
 	io_core_t io_ctl;
@@ -23,6 +23,5 @@ int stream_init(loop_t * loop, stream_t * stream);
 /*decide later where the addr and port should be passed + other options*/
 int stream_server(loop_t * loop, stream_t * stream, char *hostname, char *port); 
 int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection);
-	
 
 #endif

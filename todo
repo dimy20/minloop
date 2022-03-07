@@ -39,6 +39,13 @@ Accepting network io:
 -Todo-
 	[] Implement streams support (tcp)
 		[] on connection?
+			User is responsible for accepting this connection,
+			thus also for allocating memory for the incoming peer stream_t.
+			This will be done through the stream_accept function availabe for 
+			the user, which in turn will trigger the internal core_accept function.
+			[] stream_accept -> inits stream -> inits io_core
+			[] core_accept 
+
 		[x] define the structure 
 		[x] add the buffers
 		[x] refactor the net module

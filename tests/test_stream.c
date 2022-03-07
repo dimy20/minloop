@@ -10,7 +10,7 @@ void test_stream_init(void){
 	loop_init(&loop);
 	TEST_ASSERT(stream_init(&loop, &server) == OP_SUCCESS);
 
-	stream_server(&loop, &server, "localhost", "8080");
+	TEST_ASSERT(stream_server(&loop, &server, "localhost", "8080") == OP_SUCCESS);
 
 }
 
