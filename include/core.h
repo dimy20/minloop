@@ -3,6 +3,9 @@
 
 #include <stdint.h>    
 
+#ifndef container_of
+#define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
+#endif
 
 /*events*/
 #define EV_ERROR 0x01
