@@ -8,18 +8,24 @@
 #include "../include/errno.h"
 #include "../include/error.h"
 
-//#include "../include/loop.h"
-
 	
-#define IN_BUFF 0
-#define OUT_BUFF 1
+
+
+void server_cb(io_core_t * ioc, uint8_t status){
+	stream_t  * server;
+	if(status & EV_CONNECTION){
+		server = container_of(ioc, stream_t, io_ctl);
+		server->on_connection(NULL);
+		printf("calling on_connection!");
+	}
+}
 
 int stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
 
-	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
+	io_core_init(&stream->io_ctl, IO_OFF, 0, server_cb);
 	err = qc_buffer_init(&stream->bufs[IN_BUFF], 0);
 	if(err < 0)
 		return err;
@@ -50,7 +56,7 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 	if(err < 0)
 		return err;
 
-	stream->io_ctl.fd = err;
+	iocore_setfd(&stream->io_ctl, err);
 
 	err = loop_start_io(loop, &stream->io_ctl);
 

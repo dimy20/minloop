@@ -6,9 +6,11 @@
 #include "qc_buffer.h"
 #include "loop.h"
 
-typedef void (*connection_cb)(io_core_t * peer);
+#define IN_BUFF 0 /*in_buff index*/
+#define OUT_BUFF 1 /*out_buff index*/
 
 typedef struct stream_s stream_t;
+typedef void (*connection_cb)(stream_t * peer);
 
 struct stream_s{
 	io_core_t io_ctl;
