@@ -32,7 +32,7 @@ int __io_accept(int server_fd, io_core_t * peer){
 };
 
 
-int io_core_fd(io_core_t * ioc){
+int io_core_fd(const io_core_t * ioc){
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	return ioc->fd;
 }
