@@ -12,18 +12,6 @@
 #define EV_IN 0x02
 #define EV_OUT 0x04
 #define EV_CONNECTION 0x08
-/*Error codes*/
-#define OP_SUCCESS 0x01
-#define EIO_BUSY 0x01
-#define EIO_ACCEPT 0x02
-#define EIO_START 0x04
-#define EIO_EPOLL_CTL 0x08
-#define EALLOC 0x10
-/*Status codes*/
-#define IO_OFF -1 /*This means not descriptor has been assigned yet.*/
-
-#define EIO_START_STR "Loop unable to start watching io"
-#define EIO_BUSY_STR "Operation on active io"
 
 typedef struct io_core_s io_core_t;
 
@@ -39,6 +27,7 @@ struct io_core_s {
 
 void io_core_init(io_core_t * ioc, int fd, uint32_t events, io_core_cb cb);
 int io_core_fd(const io_core_t * ioc);
+void iocore_setfd(io_core_t * ioc, int fd);
 
 #endif
 
