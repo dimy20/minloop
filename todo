@@ -38,10 +38,10 @@ Accepting network io:
 
 -Todo-
 	[] Implement streams support (tcp)
-		[] refactor the net module
-		[] define the structure 
-		[] add the buffers
 		[] on connection?
+		[x] define the structure 
+		[x] add the buffers
+		[x] refactor the net module
 
 [] Loop cleanup
 	Options:
