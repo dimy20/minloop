@@ -1,5 +1,4 @@
 bin
 *.o
-core*
 build/*.o
 todo
