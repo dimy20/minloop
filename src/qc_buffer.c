@@ -5,10 +5,12 @@
 #include <sys/socket.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <assert.h>
 
 #include "../include/qc_buffer.h"
 
 void qc_buffer_init(qc_buffer_t * buff, size_t size){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     memset(buff,0,sizeof(qc_buffer_t));
 
     buff->buff = malloc(sizeof(char) * size);
@@ -25,6 +27,7 @@ void qc_buffer_free(qc_buffer_t * buff){
 }
 
 int  qc_buffer_resize(qc_buffer_t * buff, size_t size){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     buff->size+=size;
     if((buff->buff = realloc(buff->buff,buff->size)) == NULL){
         perror("realloc()");
@@ -37,6 +40,7 @@ int  qc_buffer_resize(qc_buffer_t * buff, size_t size){
 }
 
 int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     int res = -1;
     if(size > 0){
         if((buff->end << 1) > buff->size){
@@ -59,7 +63,8 @@ int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
     return res;
 }
 
-int qc_buffer_recv(int fd, qc_buffer_t * recv_buff){
+int qc_buffer_recv(int fd, qc_buffer_t * buff){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     int nbytes, ret, is_blocking, data_available;
     size_t total = 0;
     char aux[DEFAULT_BUFF_SIZE];
@@ -91,7 +96,7 @@ int qc_buffer_recv(int fd, qc_buffer_t * recv_buff){
         nbytes = recv(fd,aux + total, size - total,0);
         if(nbytes > 0){
             total+=nbytes;
-            qc_buffer_append(recv_buff,aux,nbytes);
+            qc_buffer_append(buff,aux,nbytes);
             /*Warning!!*/
             if(is_blocking)
                 break;
@@ -115,6 +120,7 @@ int qc_buffer_recv(int fd, qc_buffer_t * recv_buff){
 
 /*take a look a this function*/
 int qc_buffer_send(int fd, qc_buffer_t * buff){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     int res = -1;
     if(buff->end > 0 && fd > 0){
         int total = 0;
@@ -137,6 +143,7 @@ int qc_buffer_send(int fd, qc_buffer_t * buff){
     return res;
 }
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     if( flag & DEBUG_RAW_BYTES ){
         for(int i = buff->start; i < buff->size; i++){
             printf("%d ",buff->buff[i]);
@@ -152,6 +159,7 @@ void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
     
 }
 void qc_buffer_reset(qc_buffer_t * buff){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     memset(buff->buff,0,buff->end);
     buff->start = 0;
     buff->end = 0;
