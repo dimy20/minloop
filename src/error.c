@@ -3,6 +3,17 @@
 #include <assert.h>
 
 #include "../include/error.h"
+#include "../include/core.h"
+
+const char * errstr(unsigned int err_code){
+	switch(err_code){
+		case EIO_START:
+			return EIO_START_STR;
+		case EIO_BUSY:
+			return EIO_BUSY_STR;
+	}
+	return NULL;
+}
 
 void error_log(char * msg){
     assert(msg != NULL && "msg is NULL");
