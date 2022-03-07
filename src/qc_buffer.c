@@ -44,31 +44,34 @@ int qc_buffer_resize(qc_buffer_t * buff, size_t size){
 		return -EALLOC;
 
     buff->size += size;
-    return OP_SUCCESS;
+    return buff->size;
 }
 
 int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    int res = -1;
-    if(size > 0){
-        if((buff->end << 1) > buff->size){
-            // resize by two times current end of buff
-            qc_buffer_resize(buff,buff->end << 1);
-        }
-        if((buff->end + size) > buff->size){
-            // resize by extra space needed
-            qc_buffer_resize(buff,size);
-        }
-        memcpy(buff->buff + buff->end ,from,size);
-        //strcpy(buff->buff + buff->end ,from);
-        buff->end+=size;
 
-        /*Since we could have resized, initialize all bytes to 0 after the end
-         * of the buff.*/
-        memset(buff->buff + buff->end,0,buff->size - buff->end); 
-        res = buff->size;
-    }
-    return res;
+	int err;
+    if(size == 0)
+		return -EINVAL;
+
+	if((buff->end << 1) > buff->size){
+		// resize by two times current end of buff
+		err = qc_buffer_resize(buff, buff->end << 1);
+		if(err < 0)
+			return err;
+	}
+	if((buff->end + size) > buff->size){
+		// resize by extra space needed
+		err = qc_buffer_resize(buff,size);
+		if(err < 0)
+			return err;
+	}
+	memcpy(buff->buff + buff->end, from, size);
+	buff->end += size;
+
+	/*Since we could have resized, initialize all bytes to 0 after the end of the buff*/
+	memset(buff->buff + buff->end, 0, buff->size - buff->end); 
+	return err;
 }
 
 int qc_buffer_recv(int fd, qc_buffer_t * buff){
