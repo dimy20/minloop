@@ -15,9 +15,12 @@
 #define EIO_ACCEPT 0x02
 #define EIO_START 0x04
 #define EIO_EPOLL_CTL 0x08
+#define EALLOC 0x10
 /*Status codes*/
 #define IO_OFF -1 /*This means not descriptor has been assigned yet.*/
 
+#define EIO_START_STR "Loop unable to start watching io"
+#define EIO_BUSY_STR "Operation on active io"
 
 typedef struct io_core_s io_core_t;
 
