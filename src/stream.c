@@ -9,13 +9,21 @@
 #include "../include/error.h"
 
 	
+struct stream_priv_s {
+	connection_cb on_connection;
+};
 
+
+struct stream_priv_s * stream_private(const stream_t * stream){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	return (struct stream_priv_s *)stream->PRIVATE;
+}
 
 void server_cb(io_core_t * ioc, uint8_t status){
-	stream_t  * server;
+	stream_t * server;
 	if(status & EV_CONNECTION){
 		server = container_of(ioc, stream_t, io_ctl);
-		server->on_connection(NULL);
+		stream_private(server)->on_connection(server);
 		printf("calling on_connection!");
 	}
 }
@@ -26,15 +34,21 @@ int stream_init(loop_t * loop, stream_t * stream){
 	int err;
 
 	io_core_init(&stream->io_ctl, IO_OFF, 0, server_cb);
+
 	err = qc_buffer_init(&stream->bufs[IN_BUFF], 0);
 	if(err < 0)
 		return err;
-
 	err = qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
 	if(err < 0)
 		return err;
 
-	stream->on_connection = NULL; /*this will go in stream_listen*/
+	/*Allocate for private fields*/
+	struct stream_priv_s * priv = stream_private(stream);
+	priv = malloc(sizeof(struct stream_priv_s));
+	if(priv == NULL)
+		return -EALLOC;
+
+	priv->on_connection = NULL; /*this will go in stream_listen*/
 
 	return OP_SUCCESS;
 }
@@ -74,8 +88,7 @@ int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection)
 	if(on_connection == NULL)
 		return -EINVAL;
 
-	stream->on_connection = on_connection;
-
+	stream_private(stream)->on_connection = on_connection;
 	err = ntcp_listen(io_core_fd(&stream->io_ctl), 10);
 
 	if(err < 0){

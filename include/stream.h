@@ -9,13 +9,14 @@
 #define IN_BUFF 0 /*in_buff index*/
 #define OUT_BUFF 1 /*out_buff index*/
 
+
 typedef struct stream_s stream_t;
 typedef void (*connection_cb)(stream_t * server);
 
 struct stream_s{
 	io_core_t io_ctl;
-	connection_cb on_connection;
 	qc_buffer_t bufs[2];
+	void * PRIVATE;
 };
 
 
