@@ -22,6 +22,7 @@
 #define EIO_START_STR "Failed to insert new io in the loop"
 #define EIO_BUSY_STR "Operation on active io"
 #define EIO_LOOP_WATCH_STR "Filed to start watching io"
+#define EIO_ACCEPT_STR "Failed to accept peer connection"
 
 void error_log(char * msg);
 void error_exit(int ret, char * msg);
