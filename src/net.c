@@ -253,4 +253,15 @@ int issocket_bound(int fd){
 
 	return is_bound;
 }
+int issock_listen(int fd){
+	assert(fd >= 0 && "fd is zero or negative");
+	int val, err;
+	socklen_t len = sizeof(val);
+	err = getsockopt(fd, SOL_SOCKET, SO_ACCEPTCONN, &val, &len);
+	if(err < 0){
+		perror("getsockopt");
+		return NET_ERR(errno);
+	}
+	return err;
+}
 

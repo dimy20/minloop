@@ -22,4 +22,6 @@ int net_connect(char * host, uint16_t port);
 int file_exists(char * filename);
 
 int issocket_bound(int fd);
+
+int issock_listen(int fd);
 #endif
