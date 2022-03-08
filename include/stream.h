@@ -22,7 +22,8 @@ struct stream_s{
 
 int stream_init(stream_t * stream);
 /*decide later where the addr and port should be passed + other options*/
-int stream_server(loop_t * loop, stream_t * stream, char *hostname, char *port); 
-int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection);
+int stream_server(loop_t * loop, stream_t * server, char *hostname, char *port); 
+int stream_listen(loop_t * loop, stream_t * server, connection_cb on_connection);
+int stream_accept(loop_t * loop, stream_t * server , stream_t * peer);
 
 #endif
