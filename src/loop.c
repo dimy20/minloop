@@ -152,28 +152,6 @@ int loop_start_io(loop_t * loop, io_core_t *ioc){
 	return OP_SUCCESS;
 };
 
-int loop_accept(loop_t * loop, io_core_t * server, io_core_t * peer){
-    assert(loop != NULL && "loop_t pointer loop is NULL");
-
-	int ret;
-	ret = __io_accept(server->fd, peer);
-	if(ret < 0 && ret == -EIO_ACCEPT){
-		perror("accept() -> Failed to accept connection\n");
-	}
-
-	ret = loop_start_io(loop, peer);
-
-	/*Assertion in loop_start_io makes this impossible now,
-	 * but if more logic is added to loop_start_io later,
-	 * this might become necessary*/
-	if( ret < 0 && ret == -EIO_START){
-		queue_insert(loop->cleanup_q, peer);
-	}
-
-	return OP_SUCCESS;
-	
-}
-
 int loop_clean_up(loop_t * loop){
 	assert(loop != NULL && "loop_t pointer loop is NULL");
 	qnode_t * node;
