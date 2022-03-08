@@ -1,5 +1,5 @@
 #include "acutest.h"
-#include "../include/core.h"
+#include "../include/error.h"
 #include "../include/stream.h"
 #include "../include/loop.h"
 
@@ -11,7 +11,6 @@ void test_stream_init(void){
 	TEST_ASSERT(stream_init(&loop, &server) == OP_SUCCESS);
 
 	TEST_ASSERT(stream_server(&loop, &server, "localhost", "8080") == OP_SUCCESS);
-
 }
 
 TEST_LIST = {
