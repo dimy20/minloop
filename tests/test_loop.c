@@ -1,3 +1,4 @@
+#include "../include/error.h"
 #include "../include/loop.h"
 #include "../include/queue.h"
 #include "../include/net.h"
