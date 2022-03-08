@@ -19,7 +19,7 @@ struct stream_priv_s * stream_private(const stream_t * stream){
 	return (struct stream_priv_s *)stream->PRIVATE;
 }
 
-void server_cb(io_core_t * ioc, uint8_t status){
+static void server_cb(io_core_t * ioc, uint8_t status){
 	stream_t * server;
 	if(status & EV_CONNECTION){
 		server = container_of(ioc, stream_t, io_ctl);
@@ -28,20 +28,18 @@ void server_cb(io_core_t * ioc, uint8_t status){
 	}
 }
 
-int stream_init(loop_t * loop, stream_t * stream){
+int stream_init(stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
 
-	io_core_init(&stream->io_ctl, IO_OFF, 0, server_cb);
+	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
 
 	err = qc_buffer_init(&stream->bufs[IN_BUFF], 0);
-	if(err < 0)
-		return err;
+	if(err < 0) return err;
 	err = qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
-	if(err < 0)
-		return err;
-
+	if(err < 0) return err;
+		
 	/*Allocate for private fields*/
 	struct stream_priv_s * priv = stream_private(stream);
 	priv = malloc(sizeof(struct stream_priv_s));
@@ -61,22 +59,19 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 
 	int err;
 
+	stream->io_ctl.cb = server_cb;
 	/*what should the loop do with this io when this happens?*/
-	if(io_core_fd(&stream->io_ctl) != IO_OFF)
+	if(iocore_getfd(&stream->io_ctl) != IO_OFF)
 		LOG_ERROR(EIO_BUSY);
 
 	err = ntcp_server(hostname, port);
-
-	if(err < 0)
-		return err;
+	if(err < 0) return err;
 
 	iocore_setfd(&stream->io_ctl, err);
 
 	err = loop_start_io(loop, &stream->io_ctl);
-
-	if(err < 0)
-		LOG_ERROR(err);
-
+	if(err < 0) LOG_ERROR(err);
+		
 	return err;
 }
 
@@ -89,7 +84,7 @@ int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection)
 		return -EINVAL;
 
 	stream_private(stream)->on_connection = on_connection;
-	err = ntcp_listen(io_core_fd(&stream->io_ctl), 10);
+	err = ntcp_listen(iocore_getfd(&stream->io_ctl), 10);
 
 	if(err < 0){
 		return err;
