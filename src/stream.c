@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
-
 #include "../include/stream.h"
 #include "../include/net.h"
 #include "../include/core.h"
@@ -93,5 +92,24 @@ int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection)
 	return OP_SUCCESS;
 }
 
+int stream_accept(loop_t * loop, stream_t * server , stream_t * peer){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(server != NULL && "stream_t pointer is NULL");
+	assert(peer != NULL && "stream_t pointer is NULL");
+	int err, peer_fd;
 
+	err = stream_init(peer);
+	if(err < 0) return err;
+
+	peer_fd = _io_accept(&server->io_ctl);
+	if(peer_fd < 0) return peer_fd;
+
+	/*set returned peer fd*/
+	iocore_setfd(&peer->io_ctl, peer_fd);
+		
+	err = loop_start_io(loop, &peer->io_ctl);
+	if(err < 0) return err;
+
+	return 0;
+}
 
