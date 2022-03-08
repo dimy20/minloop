@@ -8,7 +8,7 @@
 #include <assert.h>
 
 #include "../include/qc_buffer.h"
-#include "../include/core.h"
+#include "../include/error.h"
 
 int qc_buffer_init(qc_buffer_t * buff, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
