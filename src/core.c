@@ -16,22 +16,22 @@ void io_core_init(io_core_t * ioc, int fd, uint32_t events, io_core_cb cb){
 	ioc->cb = cb;
 }
 
-int __io_accept(int server_fd, io_core_t * peer){
-	assert(peer != NULL && "io_core_t pointer perr is NULL");
-	assert( server_fd >= 0 );
-	int accepted;
-	accepted = accept(server_fd, NULL, NULL);
+int _io_accept(io_core_t * io){
+	assert(io != NULL && "io_core_t pointer is NULL");
+	assert( iocore_getfd(io) >= 0 );
 
-	if(accepted == -1)
-		return -EIO_ACCEPT;
+	int err;
 
-	peer->fd = accepted;
-	peer->cb = NULL;
-	peer->events = EPOLLIN | EPOLLET;
-	return accepted;
+	err = issock_listen(iocore_getfd(io));
+	if(err < 0) return -EIO_ACCEPT;
+
+	err = accept(iocore_getfd(io), NULL, NULL);
+	if(err < 0) return -EIO_ACCEPT;
+
+	return err;
 };
 
-int io_core_fd(const io_core_t * ioc){
+int iocore_getfd(const io_core_t * ioc){
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	return ioc->fd;
 }

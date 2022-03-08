@@ -26,8 +26,9 @@ struct io_core_s {
 
 
 void io_core_init(io_core_t * ioc, int fd, uint32_t events, io_core_cb cb);
-int io_core_fd(const io_core_t * ioc);
+int iocore_getfd(const io_core_t * ioc);
 void iocore_setfd(io_core_t * ioc, int fd);
+int _io_accept(io_core_t * io);
 
 #endif
 
