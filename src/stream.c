@@ -103,6 +103,9 @@ int stream_accept(loop_t * loop, stream_t * server , stream_t * peer){
 	assert(peer != NULL && "stream_t pointer is NULL");
 	int err, peer_fd;
 
+	if((server->io_ctl.status & STS_LISTEN) != STS_LISTEN)
+		return -EIO_ACCEPT_LISTEN;
+
 	err = stream_init(peer);
 	if(err < 0) return err;
 
