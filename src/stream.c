@@ -76,20 +76,23 @@ int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port
 	return err;
 }
 
-int stream_listen(loop_t * loop, stream_t * stream, connection_cb on_connection){
+int stream_listen(loop_t * loop, stream_t * server, connection_cb on_connection){
 	assert(loop != NULL && "loop_t pointer is NULL");
-	assert(stream != NULL && "stream_t pointer is NULL");
+	assert(server != NULL && "stream_t pointer is NULL");
 	int err;
 
 	if(on_connection == NULL)
 		return -EINVAL;
 
-	stream_private(stream)->on_connection = on_connection;
-	err = ntcp_listen(iocore_getfd(&stream->io_ctl), 10);
 
-	if(err < 0){
+	struct stream_priv_s * priv = stream_private(server);
+	priv->on_connection = on_connection;
+
+	err = ntcp_listen(iocore_getfd(&server->io_ctl), 10);
+	if(err < 0)
 		return err;
-	}
+
+	server->io_ctl.status |= STS_LISTEN;
 
 	return OP_SUCCESS;
 }
