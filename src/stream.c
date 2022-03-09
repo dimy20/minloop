@@ -13,6 +13,7 @@ struct stream_priv_s {
 };
 
 static void server_cb(io_core_t * ioc, uint8_t status){
+	assert(ioc != NULL && "io_core_t pointer is NULL");
 	stream_t * server;
 	if(status & EV_CONNECTION){
 		server = container_of(ioc, stream_t, io_ctl);
