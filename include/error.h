@@ -16,6 +16,7 @@
 #define EIO_START      0x04 /*failed to insert new io in the loop*/
 #define EIO_LOOP_WATCH 0x08 /*Loop failed to start watching io*/
 #define EALLOC         0x10 /*Memort allocation error*/
+#define EIO_ACCEPT_LISTEN 0x20 /*Bad fd*/
 /*Status codes*/
 #define IO_OFF -1 /*This means not descriptor has been assigned yet.*/
 
@@ -23,6 +24,7 @@
 #define EIO_BUSY_STR "Operation on active io"
 #define EIO_LOOP_WATCH_STR "Filed to start watching io"
 #define EIO_ACCEPT_STR "Failed to accept peer connection"
+#define EIO_ACCEPT_LISTEN_STR "Attempt to accept on non-listening stream"
 
 void error_log(char * msg);
 void error_exit(int ret, char * msg);

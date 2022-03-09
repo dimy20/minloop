@@ -21,10 +21,6 @@ int _io_accept(io_core_t * io){
 	assert( iocore_getfd(io) >= 0 );
 
 	int err;
-
-	err = issock_listen(iocore_getfd(io));
-	if(err < 0) return -EIO_ACCEPT;
-
 	err = accept(iocore_getfd(io), NULL, NULL);
 	if(err < 0) return -EIO_ACCEPT;
 

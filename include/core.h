@@ -13,6 +13,9 @@
 #define EV_OUT 0x04
 #define EV_CONNECTION 0x08
 
+/*status or options*/
+#define STS_LISTEN 0x01
+
 typedef struct io_core_s io_core_t;
 
 typedef void(*io_core_cb)(io_core_t * ioc, uint8_t status);

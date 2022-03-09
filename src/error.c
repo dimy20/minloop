@@ -5,6 +5,7 @@
 #include "../include/error.h"
 #include "../include/core.h"
 
+#define ERROR_CODE_UNKNOWN "Unknown error code\n";
 const char * errstr(int err_code){
 	err_code = err_code < 0 ? err_code*-1 : err_code;
 	switch(err_code){
@@ -16,8 +17,10 @@ const char * errstr(int err_code){
 			return EIO_LOOP_WATCH_STR;
 		case EIO_ACCEPT:
 			return EIO_ACCEPT_STR;
+		case EIO_ACCEPT_LISTEN:
+			return EIO_ACCEPT_LISTEN_STR;
 	}
-	return "Uknown error code";
+	return ERROR_CODE_UNKNOWN;
 }
 
 void error_log(char * msg){
