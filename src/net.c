@@ -61,15 +61,17 @@ int new_socket(int family, int socktype, int protocol){
 }
 
 int ntcp_listen(int fd, int backlog){
-	int ret;
+	assert(fd > 0 && "fd less than zero");
+	int err;
 
-    ret = listen(fd, BACKLOG);
-	if(ret < 0){
+    err = listen(fd, backlog);
+
+	if(err == -1){
 		perror("net.c:listen");
 		return NET_ERR(errno);
 	}
 
-	return ret;
+	return err;
 }
 
 int ntcp_server(char * hostname, char * port){
