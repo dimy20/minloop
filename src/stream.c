@@ -12,17 +12,12 @@ struct stream_priv_s {
 	connection_cb on_connection;
 };
 
-
-struct stream_priv_s * stream_private(const stream_t * stream){
-	assert(stream != NULL && "stream_t pointer is NULL");
-	return (struct stream_priv_s *)stream->PRIVATE;
-}
-
 static void server_cb(io_core_t * ioc, uint8_t status){
 	stream_t * server;
 	if(status & EV_CONNECTION){
 		server = container_of(ioc, stream_t, io_ctl);
-		stream_private(server)->on_connection(server);
+		struct stream_priv_s * priv = (struct stream_priv_s *)server->PRIVATE;
+		priv->on_connection(server);
 		printf("calling on_connection!");
 	}
 }
@@ -84,9 +79,7 @@ int stream_listen(loop_t * loop, stream_t * server, connection_cb on_connection)
 	if(on_connection == NULL)
 		return -EINVAL;
 
-
-	struct stream_priv_s * priv = stream_private(server);
-	priv->on_connection = on_connection;
+	((struct stream_priv_s *)server->PRIVATE)->on_connection = on_connection;
 
 	err = ntcp_listen(iocore_getfd(&server->io_ctl), 10);
 	if(err < 0)
