@@ -9,6 +9,7 @@
 
 #define PORT "8080"
 #define HOSTNAME "localhost"
+#define TEST_BACKLOG 10
 
 void test_new_socket(void){
 	int fd;
@@ -17,29 +18,34 @@ void test_new_socket(void){
 	close(fd);
 }
 
-void test_net_tcp_server(void){
+void test_ntcp_server(void){
 	struct sockaddr_in addr;
 	socklen_t len;
-	int fd, ret;
+	int fd, err;
 
 	fd = ntcp_server(HOSTNAME, PORT);
-
 	TEST_ASSERT(fd > 0);
 
-	ret = getsockname(fd, (struct sockaddr *)&addr, &len);	
-	if(ret < 0){
-		perror("getsockname");
-	}
+	err = getsockname(fd, (struct sockaddr *)&addr, &len);	
+	if(err< 0) perror("getsockname");
 
 	TEST_ASSERT(addr.sin_port != 0);
 	TEST_ASSERT(inet_ntoa(addr.sin_addr) != NULL);
 	TEST_ASSERT(issocket_bound(fd));
+
 }
 
+void test_ntcp_listen(void){
+	int fd, err;
 
+	fd = ntcp_server(HOSTNAME, PORT);
+	err = ntcp_listen(fd, TEST_BACKLOG);
+	TEST_ASSERT(err == 0);
+}
 
 TEST_LIST = {
 	{"int new_socket(int, int, int)", test_new_socket},
-	{"int net_tcp_server(char *)", test_net_tcp_server},
+	{"int ntcp_server(char *, char*)", test_ntcp_server},
+	{"int ntcp_listen(int, int)", test_ntcp_listen},
 	{0}
 };
