@@ -97,3 +97,20 @@ int vector_empty(const vector_t * vec){
 	assert(vec != NULL && "vector_t pointer is NULL");
 	return vec->count == 0;
 }
+
+int vector_push_back(vector_t * vec, io_core_t * val){
+	assert(vec != NULL && "vector_t pointer is NULL");
+	int err;
+	err = vector_maybe_resize(vec);
+
+	vec->arr[vec->count++] = val;
+	return vec->count;
+}
+
+io_core_t * vector_pop_back(vector_t * vec){
+	assert(vec != NULL && "vector_t pointer is NULL");
+	assert(vec->count > 0);
+	vec->count--;
+	return vec->arr[vec->count];
+}
+

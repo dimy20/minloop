@@ -2,7 +2,7 @@
 #include "acutest.h"
 
 #define NO_EVENTS 0
-#define ELEM_NO 40
+#define ELEM_NO 1000
 
 io_core_t * create_sample_io(int fd){
 	io_core_t * ioc = malloc(sizeof(io_core_t));
@@ -113,13 +113,55 @@ void test_vector_remove_random(void){
 	TEST_ASSERT(vec->count == 0);
 
 }
+void test_vector_push_back(void){
+	int size = 0;
+	vector_t * vec = create_sample_vector(size);
+	io_core_t * ios[ELEM_NO];
+
+	for(int i = 0; i < ELEM_NO; i++){
+		ios[i] = create_sample_io(i);
+	}
+
+	for(int i = 0; i < ELEM_NO; i++){
+		TEST_ASSERT(vector_push_back(vec, ios[i]));
+	}
+
+	TEST_ASSERT(vec->count == ELEM_NO);
+
+	for(int i = 0; i < vec->count; i++){
+		TEST_ASSERT(ios[i] == vec->arr[i]);
+	}
+
+	vector_free(vec);
+}
+
+void test_vector_pop_back(void){
+	int size = 0;
+	vector_t * vec = create_sample_vector(size);
+	io_core_t * ios[ELEM_NO];
+
+	for(int i = 0; i < ELEM_NO; i++){
+		ios[i] = create_sample_io(i);
+	}
+	for(int i = 0; i < ELEM_NO; i++){
+		vector_push_back(vec, ios[i]);
+	}
+
+	for(int i = ELEM_NO-1; i >= 0; i--){
+		TEST_ASSERT(vector_pop_back(vec) == ios[i]);
+	}
+
+	TEST_ASSERT(vec->count == 0);
+}
 
 TEST_LIST = {
 	{"void vector_init(vector_t * vec, size_t size)", test_vector_init},
 	{"unsigned int vector_insert(vector_t * vec, int index, io_core_t *ioc)",
 	test_vector_insert},
 	{"io_core_t * vector_remove(vector_t * vec, int index)",test_vector_remove},
-	{"(random indices )io_core_t * vector_remve(vector_t * vec, int index)", test_vector_remove_random},
+	{"(random indices )io_core_t * vector_remve(vector_t *, int)", test_vector_remove_random},
+	{"int vector_push_back(vector_t *, io_core_t *)", test_vector_push_back},
+	{"io_core_t * vector_pop_back(vector_t *)", test_vector_pop_back},
 	{0}
 	
 };
