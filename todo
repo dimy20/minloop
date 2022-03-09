@@ -46,6 +46,7 @@ Accepting network io:
 			[] stream_accept -> inits stream -> inits io_core
 			[] core_accept 
 
+		[] loop clean up has to free up any memory allocated in the parent by the loop
 		[x] define the structure 
 		[x] add the buffers
 		[x] refactor the net module
