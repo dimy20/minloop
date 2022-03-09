@@ -23,5 +23,4 @@ int file_exists(char * filename);
 
 int issocket_bound(int fd);
 
-int issock_listen(int fd);
 #endif
