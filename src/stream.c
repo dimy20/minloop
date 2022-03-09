@@ -31,21 +31,23 @@ int stream_init(stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
+	void * mem;
 
+	/*init core*/
 	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
 
-	err = qc_buffer_init(&stream->bufs[IN_BUFF], 0);
-	if(err < 0) return err;
-	err = qc_buffer_init(&stream->bufs[OUT_BUFF], 0);
-	if(err < 0) return err;
+	/*init io buffers*/
+	for(int i = 0; i < 2; i++){
+		err = qc_buffer_init(&stream->bufs[i], 0);
+		if(err < 0) return err;
+	}
 		
 	/*Allocate for private fields*/
-	struct stream_priv_s * priv = stream_private(stream);
-	priv = malloc(sizeof(struct stream_priv_s));
-	if(priv == NULL)
-		return -EALLOC;
+	mem = malloc(sizeof(struct stream_priv_s));
+	if(mem == NULL) return -EALLOC;
 
-	priv->on_connection = NULL; /*this will go in stream_listen*/
+	memset(mem, 0, sizeof(struct stream_priv_s));
+	stream->PRIVATE = mem;
 
 	return OP_SUCCESS;
 }
