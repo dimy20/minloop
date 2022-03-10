@@ -30,14 +30,14 @@ static void server_cb(io_core_t * ioc, uint8_t status){
 	priv->on_connection(server);
 }
 
-int stream_init(stream_t * stream){
+int stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
 	void * mem;
 
 	/*init core*/
-	io_core_init(&stream->io_ctl, IO_OFF, 0, NULL);
+	io_core_init(&stream->io_ctl, IO_OFF, EPOLLIN | EPOLLET, NULL);
 
 	/*init io buffers*/
 	for(int i = 0; i < 2; i++){
