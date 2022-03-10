@@ -81,8 +81,7 @@ int stream_server(stream_t * server, char * hostname, char * port){
 	return OP_SUCCESS;
 }
 
-int stream_listen(loop_t * loop, stream_t * server, connection_cb on_connection){
-	assert(loop != NULL && "loop_t pointer is NULL");
+int stream_listen(stream_t * server, connection_cb on_connection){
 	assert(server != NULL && "stream_t pointer is NULL");
 	int err;
 
