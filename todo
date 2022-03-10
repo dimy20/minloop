@@ -45,6 +45,38 @@ Accepting network io:
 			the user, which in turn will trigger the internal core_accept function.
 			[] stream_accept -> inits stream -> inits io_core
 			[] core_accept 
+			[] If the on_connection function wont get passed a referece to the loop,
+			   then the loop will need a mechanism to initialize a connection fd on
+			   its own without a function call from the user.
+			   Alternative just pass the loop to the on_connection callback.
+			   Drawbacks of this? more chanches for the caller to screw up
+
+			   server_cb:
+				  Before calling on_connection server_cb will:
+					Internally accept the connection first
+					Store the accepted fd
+				  When on_connection callback returns server_cb will:
+				    Check wether the callback accepted or not the peer
+					If it did it will assign to this new stream_t the previously stored fd
+					Otherwise the fd will be removed and necessary clean up should proceed.
+
+				Only stream_init will have a reference to the loop given that the goal
+				is to abtract away as much as possible the inner workings of the loop.
+				The user shouldn have to worry about this, hence passsing around pointers
+				to the loop in stream functions should be minimized, besides the concept
+				of the stream has little to do with the event loop, which is simply our
+				approach to have single-threaded async io. Of course any feature added to
+				the library like udp support will have to be monitored by the loop but again
+				the user should only worry about udp function calls, reducing loop interaction
+				from his perspective as much as possible.
+				For this stream_init will have to call loop_start_io directly, this imposes
+				a challenge with the current design, having a call to loop_start_io directly
+				triggers the loop to start watching for this given io at the immediate next 
+				iteration we may or may not have a valid fd at this point, for that will 
+				make a list which we will name retry_list.
+
+
+
 
 		[] loop clean up has to free up any memory allocated in the parent by the loop
 		[x] define the structure 
