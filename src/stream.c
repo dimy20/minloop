@@ -7,8 +7,9 @@
 #include "../include/errno.h"
 #include "../include/error.h"
 
-	
-struct stream_priv_s {
+struct stream_s{
+	io_core_t io_ctl;
+	qc_buffer_t bufs[2];
 	connection_cb on_connection;
 	int accepted_fd;
 };
@@ -20,21 +21,18 @@ static void server_cb(io_core_t * ioc, uint8_t status){
 	int peer_fd;
 
 	server = container_of(ioc, stream_t, io_ctl);
-	struct stream_priv_s * priv = (struct stream_priv_s *)server->PRIVATE;
 
 	peer_fd = _io_accept(&server->io_ctl);
 	if(peer_fd < 0) return;
 
-	priv->accepted_fd = peer_fd;
-
-	priv->on_connection(server);
+	server->accepted_fd = peer_fd;
+	server->on_connection(server);
 }
 
 int stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
-	void * mem;
 
 	/*init core*/
 	io_core_init(&stream->io_ctl, IO_OFF, EPOLLIN | EPOLLET, NULL);
@@ -46,17 +44,10 @@ int stream_init(loop_t * loop, stream_t * stream){
 	}
 		
 	/*Allocate for private fields*/
-	mem = malloc(sizeof(struct stream_priv_s));
-	if(mem == NULL) return -EALLOC;
 
-	memset(mem, 0, sizeof(struct stream_priv_s));
-
-	((struct stream_priv_s*)mem)->accepted_fd = -1;
-
-	stream->PRIVATE = mem;
-
+	stream->accepted_fd = -1;
 	err = loop_start_io(loop, &stream->io_ctl);
-	if(err < 0) LOG_ERROR(err);
+	if(err < 0) return err;
 
 	return OP_SUCCESS;
 }
@@ -88,33 +79,55 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 	if(on_connection == NULL)
 		return -EINVAL;
 
-	((struct stream_priv_s *)server->PRIVATE)->on_connection = on_connection;
+	server->on_connection = on_connection;
 
 	err = ntcp_listen(iocore_getfd(&server->io_ctl), 10);
-	if(err < 0)
+	if(err < 0){
+		perror("ntcp_listen");
 		return err;
+	}
+
 
 	server->io_ctl.status |= STS_LISTEN;
 
 	return OP_SUCCESS;
 }
 
-int stream_accept(stream_t * server , stream_t * peer){
+int stream_accept(const stream_t * server , stream_t * peer){
 	assert(server != NULL && "stream_t pointer is NULL");
 	assert(peer != NULL && "stream_t pointer is NULL");
 
-	int accepted_fd;	
 
 	if((server->io_ctl.status & STS_LISTEN) != STS_LISTEN)
 		return -EIO_ACCEPT_LISTEN;
 
-	accepted_fd = ((struct stream_priv_s*)server->PRIVATE)->accepted_fd;
 
-	if(accepted_fd == -1)
+	if(server->accepted_fd == -1)
 		return -EIO_ACCEPT_LISTEN;
 
-	peer->io_ctl.fd = accepted_fd;
+	peer->io_ctl.fd = server->accepted_fd;
 
 	return 0;
 }
 
+stream_t * stream_new(loop_t * loop){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	stream_t * new_stream;
+	int err;
+
+	new_stream = malloc(sizeof(stream_t));
+	if(new_stream == NULL){
+		LOG_ERROR(EALLOC);
+		return NULL;
+	}
+
+	memset(new_stream, 0, sizeof(stream_t));
+	err = stream_init(loop, new_stream);
+	if(err < 0) LOG_ERROR(err);
+		
+	return new_stream;
+}
+
+void stream_free(stream_t * stream){
+	free(stream);
+}
