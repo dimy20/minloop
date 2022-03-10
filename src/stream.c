@@ -63,26 +63,22 @@ int stream_init(loop_t * loop, stream_t * stream){
 
 
 
-int stream_server(loop_t * loop, stream_t * stream, char * hostname, char * port){
-	assert(loop != NULL && "loop_t pointer is NULL");
-	assert(stream != NULL && "stream_t pointer is NULL");
+int stream_server(stream_t * server, char * hostname, char * port){
+	assert(server!= NULL && "stream_t pointer is NULL");
 
 	int err;
 
-	stream->io_ctl.cb = server_cb;
+	server->io_ctl.cb = server_cb;
+
 	/*what should the loop do with this io when this happens?*/
-	if(iocore_getfd(&stream->io_ctl) != IO_OFF)
-		LOG_ERROR(EIO_BUSY);
+	if(server->io_ctl.fd != IO_OFF)
+		return -EIO_BUSY;
 
 	err = ntcp_server(hostname, port);
 	if(err < 0) return err;
 
-	iocore_setfd(&stream->io_ctl, err);
-
-	err = loop_start_io(loop, &stream->io_ctl);
-	if(err < 0) LOG_ERROR(err);
-		
-	return err;
+	server->io_ctl.fd = err;
+	return OP_SUCCESS;
 }
 
 int stream_listen(loop_t * loop, stream_t * server, connection_cb on_connection){
