@@ -96,18 +96,23 @@ void poll_io(loop_t * loop){
 
     }
 
-	
-    ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
+    memset(&ev, 0, sizeof(struct epoll_event) * MAX_EVENTS);
+    ret = epoll_wait(loop->efd, ev, MAX_EVENTS, 0);
     error_exit(ret, "epoll_wait");
 
     for(int i = 0; i < ret; i++){
         if(ev[i].events & EPOLLIN){
-            printf("EPOLLIN event \n");
+			fd = ev[i].data.fd;
+			ioc = loop->io_watchers.arr[fd];
+			if(ioc != NULL && ioc->cb != NULL){
+				ioc->cb(ioc, EV_CONNECTION);
+			}
         }
-
+		/*
         if(ev[i].events & EPOLLOUT){
             printf("EPOLLOUT event \n");
         }
+		*/
     }
 
 }
