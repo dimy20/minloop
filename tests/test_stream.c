@@ -10,10 +10,10 @@ void on_connection(stream_t * server){
 void test_stream_init(void){
 	loop_t loop;
 	stream_t server;
-
 	loop_init(&loop);
-	TEST_ASSERT(stream_init(&server) == OP_SUCCESS);
-	TEST_ASSERT(stream_server(&loop, &server, "localhost", "8080") == OP_SUCCESS);
+	TEST_ASSERT(stream_init(&loop, &server) == OP_SUCCESS);
+	TEST_ASSERT(stream_server(&server, "localhost", "8080") == OP_SUCCESS);
+
 }
 
 void test_stream_listen(void){
@@ -23,10 +23,10 @@ void test_stream_listen(void){
 	stream_t server;
 	int err;
 
-	stream_init(&server);
-	stream_server(&loop, &server, "localhost", "8080");
+	stream_init(&loop, &server);
+	stream_server(&server, "localhost", "8080");
 
-	err = stream_listen(&loop, &server, NULL);
+	err = stream_listen(&server, NULL);
 	TEST_ASSERT_(err == -EINVAL, "connection callback cant be NULL");
 }
 
