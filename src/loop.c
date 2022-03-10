@@ -129,22 +129,21 @@ int loop_watch_io(loop_t * loop, io_core_t * ioc){
 	int err;
 
     memset(&ev, 0, sizeof(ev));
-    ev.data.fd = ioc->fd; ev.events = ioc->events; 
+    ev.data.fd = ioc->fd; 
+	ev.events = ioc->events; 
 	err = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev); 
 
 	if(err == -1){ 
 		if(errno != EEXIST){ /*ignore this one*/
 			err = -EIO_LOOP_WATCH;
 			perror("epoll_ctl");
-			LOG_ERROR(err);
 			return err;
 		}
 	}
 
 	err = vector_insert(&loop->io_watchers, ioc->fd, ioc);
-
 	if(err < 0)
-		LOG_ERROR(err);
+		return err;
 
 	return OP_SUCCESS;
 }
