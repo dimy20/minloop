@@ -8,46 +8,35 @@
 #include "include/net.h"
 #include "include/loop.h"
 #include "include/stream.h"
+#include "include/error.h"
+
+loop_t loop;
 
 void on_connection(stream_t * server){
-	printf("what??\n");
-}
-
-void example_stream(void){
-	loop_t loop;
-	stream_t server;
+	stream_t peer;
 	int err;
 
-	loop_init(&loop);
-	stream_init(&server);
-	stream_server(&loop, &server, "localhost", "8080");
-
-	err = stream_listen(&loop, &server, on_connection);
-
+	err = stream_init(&loop, &peer);
+	if(err < 0) LOG_ERROR(err);
+	err = stream_accept(server, &peer);
+	if(err < 0) LOG_ERROR(err);
 }
 
+
 int main(){
-	/*
-	int fd, peer, err;
+	int err;
+	stream_t server;
 
-	fd = ntcp_server("localhost","8080");
-	err = ntcp_listen(fd, 10);
-	if(err < 0)
-		printf("error!1!!\n");
-	printf("listening for connections\n");
+	loop_init(&loop);
+	stream_init(&loop, &server);
 
-	while(1){
-		peer = accept(fd, NULL, NULL);
-		if(peer == -1){
-			if(errno != EAGAIN){
-				perror("accept");
-			}
-		}else{
-			printf("New connection : %d \n", peer);
-		}
-	}
+	err = stream_server(&server, "localhost", "8080");
+	if(err < 0) LOG_ERROR(err);
 
-	*/
-	example_stream();
+	err = stream_listen(&server, on_connection);
+	if(err < 0) LOG_ERROR(err);
+
+
+	loop_start(&loop);
 	return 0;
 }
