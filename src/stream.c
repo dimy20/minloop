@@ -99,8 +99,7 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 	return OP_SUCCESS;
 }
 
-int stream_accept(loop_t * loop, stream_t * server , stream_t * peer){
-	assert(loop != NULL && "loop_t pointer is NULL");
+int stream_accept(stream_t * server , stream_t * peer){
 	assert(server != NULL && "stream_t pointer is NULL");
 	assert(peer != NULL && "stream_t pointer is NULL");
 	int err, peer_fd;
