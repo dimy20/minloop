@@ -10,17 +10,24 @@
 	
 struct stream_priv_s {
 	connection_cb on_connection;
+	int accepted_fd;
 };
 
 static void server_cb(io_core_t * ioc, uint8_t status){
+	printf("calling on_connection!\n");
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	stream_t * server;
-	if(status & EV_CONNECTION){
-		server = container_of(ioc, stream_t, io_ctl);
-		struct stream_priv_s * priv = (struct stream_priv_s *)server->PRIVATE;
-		priv->on_connection(server);
-		printf("calling on_connection!");
-	}
+	int peer_fd;
+
+	server = container_of(ioc, stream_t, io_ctl);
+	struct stream_priv_s * priv = (struct stream_priv_s *)server->PRIVATE;
+
+	peer_fd = _io_accept(&server->io_ctl);
+	if(peer_fd < 0) return;
+
+	priv->accepted_fd = peer_fd;
+
+	priv->on_connection(server);
 }
 
 int stream_init(stream_t * stream){
