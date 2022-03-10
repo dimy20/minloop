@@ -6,7 +6,7 @@
 #include "queue.h"
 #include "vector.h"
 
-#define MAX_EVENTS 1024
+#define MAX_EVENTS 16
 #define VEC_DEFAULT 32 
 #define TEMP_TIMEOUT 0 /*This will be removed later*/
 
@@ -17,6 +17,7 @@ struct loop_s {
 	queue_t * cleanup_q; /*unhealty resources will be queued here for clean up*/
     queue_t * pending_q;
 	vector_t io_watchers;
+	vector_t retry_list; /*store non-ready ios here for retry*/
 	int fd_count;
 };
 
