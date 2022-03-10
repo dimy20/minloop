@@ -53,10 +53,7 @@ void loop_free(loop_t * loop){
 
 void loop_start(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
-
-
     while(1){
-        printf("loop running\n");
         poll_io(loop);
 		loop_clean_up(loop);
     }
