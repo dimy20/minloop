@@ -50,7 +50,13 @@ int stream_init(loop_t * loop, stream_t * stream){
 	if(mem == NULL) return -EALLOC;
 
 	memset(mem, 0, sizeof(struct stream_priv_s));
+
+	((struct stream_priv_s*)mem)->accepted_fd = -1;
+
 	stream->PRIVATE = mem;
+
+	err = loop_start_io(loop, &stream->io_ctl);
+	if(err < 0) LOG_ERROR(err);
 
 	return OP_SUCCESS;
 }
