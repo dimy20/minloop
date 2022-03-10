@@ -63,24 +63,21 @@ void poll_io(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
 
     struct epoll_event ev[MAX_EVENTS];
-    int ret;
+    int ret, err, fd;
+	qnode_t * node;
+	io_core_t * ioc;
 
-    memset(&ev, 0, sizeof(struct epoll_event));
+
 
     /*Add all io_cores waiting to be included in the loop*/
 	
     while(!queue_empty(loop->pending_q)){
-		int val;
-        qnode_t * node;
-        io_core_t * ioc;
-
         node = queue_pop(loop->pending_q);
         ioc = (io_core_t *)qnode_val(node);
-        
-        assert(ioc != NULL && "io_core_t pointer is NULL");
 
+        assert(ioc != NULL && "io_core_t pointer is NULL");
 		/*start watching this ioc*/
-        val = loop_watch_io(loop, ioc);
+        err = loop_watch_io(loop, ioc);
 
 		if(val < 0 && val == -EIO_LOOP_WATCH){
 			/*This io_core_t is now considered unhealty*/
