@@ -79,14 +79,22 @@ void poll_io(loop_t * loop){
 		/*start watching this ioc*/
         err = loop_watch_io(loop, ioc);
 
-		if(val < 0 && val == -EIO_LOOP_WATCH){
-			/*This io_core_t is now considered unhealty*/
-			queue_insert(loop->cleanup_q, ioc);	
-			printf("handle error here\n");
+		if(err < 0){
+			if(err == -EIO_LOOP_WATCH){
+				/*This io_core_t is now considered unhealty*/
+				queue_insert(loop->cleanup_q, ioc);	
+
+				LOG_ERROR(err);
+				printf("handle error here\n");
+
+			}else if(err == IO_OFF){
+				/*io is currently off, send it to retry list*/
+				vector_push_back(&loop->retry_list, ioc);
+			}
 		}
 
-    }
 
+    }
 
 	
     ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
