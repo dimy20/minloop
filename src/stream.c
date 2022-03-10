@@ -11,7 +11,19 @@ struct stream_s{
 	io_core_t io_ctl;
 	qc_buffer_t bufs[2];
 	connection_cb on_connection;
+	data_cb on_data;
 	int accepted_fd;
+};
+
+static void _io_activity_cb(io_core_t * ioc, uint8_t status){
+	assert(ioc != NULL && "io_core_t pointer is NULL");
+
+	stream_t * stream;
+	stream = container_of(ioc, stream_t, io_ctl);
+	if(stream != NULL){
+		stream->on_data(stream);
+	}
+	return;
 };
 
 static void server_cb(io_core_t * ioc, uint8_t status){
