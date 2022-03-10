@@ -102,22 +102,18 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 int stream_accept(stream_t * server , stream_t * peer){
 	assert(server != NULL && "stream_t pointer is NULL");
 	assert(peer != NULL && "stream_t pointer is NULL");
-	int err, peer_fd;
+
+	int accepted_fd;	
 
 	if((server->io_ctl.status & STS_LISTEN) != STS_LISTEN)
 		return -EIO_ACCEPT_LISTEN;
 
-	err = stream_init(peer);
-	if(err < 0) return err;
+	accepted_fd = ((struct stream_priv_s*)server->PRIVATE)->accepted_fd;
 
-	peer_fd = _io_accept(&server->io_ctl);
-	if(peer_fd < 0) return peer_fd;
+	if(accepted_fd == -1)
+		return -EIO_ACCEPT_LISTEN;
 
-	/*set returned peer fd*/
-	iocore_setfd(&peer->io_ctl, peer_fd);
-		
-	err = loop_start_io(loop, &peer->io_ctl);
-	if(err < 0) return err;
+	peer->io_ctl.fd = accepted_fd;
 
 	return 0;
 }
