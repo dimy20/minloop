@@ -46,8 +46,10 @@ int stream_init(loop_t * loop, stream_t * stream){
 	memset(stream, 0, sizeof(stream_t));
 	int err;
 
-	/*init core*/
-	io_core_init(&stream->io_ctl, IO_OFF, EPOLLIN | EPOLLET, NULL);
+	/*_io_activity_cb is the default callback for io_cores but it can be modified
+	 * if the io_core is used for other types of sockets, for exmaple if it is 
+	 * supposed to accept connections it can be changed to point to server_cb*/
+	io_core_init(&stream->io_ctl, IO_OFF, EPOLLIN | EPOLLET, _io_activity_cb);
 
 	/*init io buffers*/
 	for(int i = 0; i < 2; i++){
@@ -55,9 +57,10 @@ int stream_init(loop_t * loop, stream_t * stream){
 		if(err < 0) return err;
 	}
 		
-	/*Allocate for private fields*/
-
 	stream->accepted_fd = -1;
+	stream->on_connection = NULL;
+	stream->on_data = NULL;
+
 	err = loop_start_io(loop, &stream->io_ctl);
 	if(err < 0) return err;
 
@@ -99,13 +102,12 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 		return err;
 	}
 
-
 	server->io_ctl.status |= STS_LISTEN;
 
 	return OP_SUCCESS;
 }
 
-int stream_accept(const stream_t * server , stream_t * peer){
+int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data){
 	assert(server != NULL && "stream_t pointer is NULL");
 	assert(peer != NULL && "stream_t pointer is NULL");
 
@@ -118,6 +120,7 @@ int stream_accept(const stream_t * server , stream_t * peer){
 		return -EIO_ACCEPT_LISTEN;
 
 	peer->io_ctl.fd = server->accepted_fd;
+	peer->on_data = on_data; /*point to user-defined on_data cb*/
 
 	return 0;
 }
