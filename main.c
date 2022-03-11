@@ -11,12 +11,23 @@
 #include "include/error.h"
 
 loop_t loop;
+
+void on_data(stream_t * peer, event_t ev){
+	char * buff;
+	size_t size;
+	if(ev == EV_READ){
+		buff = stream_read(peer, &size);
+		printf("%s\n", buff);
+	}else if(ev == EV_CLOSE){
+		printf("peer closed connection\n");
+	}
+}
 void on_connection(stream_t * server){
 	stream_t * peer;
 	int err;
 	peer = stream_new(&loop);
 
-	err = stream_accept(server, peer);
+	err = stream_accept(server, peer, on_data);
 	if(err < 0) LOG_ERROR(err);
 }
 

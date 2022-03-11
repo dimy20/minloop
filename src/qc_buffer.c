@@ -119,7 +119,6 @@ int qc_buffer_recv(int fd, qc_buffer_t * buff){
             data_available = 0;
             //break;
         }else{
-            /*printf("is blocking: %d\n", is_blocking);*/
             /*connection is closing!!!*/
             data_available = 0;
             break;
