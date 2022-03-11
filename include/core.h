@@ -7,17 +7,10 @@
 #define container_of(ptr, type, member) ((type *)((char *)(ptr) - offsetof(type, member)))
 #endif
 
-/*events*/
-#define EV_ERROR 0x01
-#define EV_IN 0x02
-#define EV_OUT 0x04
-#define EV_CONNECTION 0x08
-
 /*status or options*/
 #define STS_LISTEN 0x01
 
 typedef struct io_core_s io_core_t;
-
 typedef void(*io_core_cb)(io_core_t * ioc, uint8_t status);
 
 struct io_core_s {
