@@ -6,6 +6,7 @@
 #include "../include/core.h"
 #include "../include/errno.h"
 #include "../include/error.h"
+#include "../include/qc_buffer.h"
 
 struct stream_s{
 	io_core_t io_ctl;
@@ -17,17 +18,21 @@ struct stream_s{
 
 static void _io_activity_cb(io_core_t * ioc, uint8_t status){
 	assert(ioc != NULL && "io_core_t pointer is NULL");
-
+	int err;
+	event_t ev;
 	stream_t * stream;
 	stream = container_of(ioc, stream_t, io_ctl);
 	if(stream != NULL){
-		stream->on_data(stream);
+		err = qc_buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
+		if(err < 0)
+			LOG_ERROR(err);
+		ev = err > 0 ? EV_READ : EV_CLOSE;
+		stream->on_data(stream, ev);
 	}
 	return;
-};
+}
 
 static void server_cb(io_core_t * ioc, uint8_t status){
-	printf("calling on_connection!\n");
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	stream_t * server;
 	int peer_fd;
@@ -145,4 +150,14 @@ stream_t * stream_new(loop_t * loop){
 
 void stream_free(stream_t * stream){
 	free(stream);
+}
+
+char * stream_read(stream_t * stream, size_t * size){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	char * ret = NULL;
+	if(stream->bufs[IN_BUFF].end > 0){
+		ret = stream->bufs[IN_BUFF].buff;
+		*size = stream->bufs[IN_BUFF].end;
+	}
+	return ret;
 }

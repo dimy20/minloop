@@ -31,5 +31,6 @@ int stream_listen(stream_t * server, connection_cb on_connection);
 int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data);
 stream_t * stream_new(loop_t * loop);
 void stream_free(stream_t * stream);
+char * stream_read(stream_t * stream, size_t * size);
 
 #endif
