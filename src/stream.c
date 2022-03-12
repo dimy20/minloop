@@ -16,23 +16,47 @@ struct stream_s{
 	int accepted_fd;
 };
 
-static void _io_activity_cb(io_core_t * ioc, uint8_t status){
+
+static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
+	assert(loop != NULL && "loop_t pointer is NULL");
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	int err;
 	event_t ev;
 	stream_t * stream;
 	stream = container_of(ioc, stream_t, io_ctl);
-	if(stream != NULL){
+
+	if((status == EPOLLIN) && (stream != NULL)){
 		err = qc_buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
 		if(err < 0)
 			LOG_ERROR(err);
 		ev = err > 0 ? EV_READ : EV_CLOSE;
 		stream->on_data(stream, ev);
+
+		/*user appended data to out_buff, try to send*/
+		if(!buffer_empty(&stream->bufs[OUT_BUFF])){
+			err = buffer_send(stream->io_ctl.fd, &stream->bufs[OUT_BUFF]);
+			if(err > 0)
+				qc_buffer_reset(&stream->bufs[OUT_BUFF]);
+			else if(err == -1){ /*failed due to kernel buff full*/
+				ioctl(&stream->io_ctl, IOCTL_ADD, EPOLLOUT);
+				nepoll_ctl(loop->efd, EPOLL_CTL_MOD, ioc->fd, ioc->events);
+			}
+		}
 	}
+	/*Now there is space available again, send what was left out.*/
+	if(status == EPOLLOUT){
+		err = buffer_send(ioc->fd, &stream->bufs[OUT_BUFF]);
+		if(err > 0){
+			ioctl(&stream->io_ctl, IOCTL_DEL, EPOLLOUT);
+			nepoll_ctl(loop->efd, EPOLL_CTL_MOD, ioc->fd, ioc->events);
+			qc_buffer_reset(&stream->bufs[OUT_BUFF]);
+		}
+	}
+
 	return;
 }
 
-static void server_cb(io_core_t * ioc, uint8_t status){
+static void server_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	assert(ioc != NULL && "io_core_t pointer is NULL");
 	stream_t * server;
 	int peer_fd;
