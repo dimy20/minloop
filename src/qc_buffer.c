@@ -12,19 +12,19 @@
 
 int qc_buffer_init(qc_buffer_t * buff, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    memset(buff,0,sizeof(qc_buffer_t));
 
+    memset(buff,0,sizeof(qc_buffer_t));
     buff->buff = malloc(sizeof(char) * size);
 	/*failed to allocate*/
 	if(buff->buff == NULL && size != 0)
 		return -EALLOC;
 
-	/*initialize this*/
     memset(buff->buff,0,sizeof(char) * size); 
 
-    buff->start = 0;
-    buff->end = 0;
-    buff->size = size;
+	buff->start = 0;
+	buff->end = 0;
+	buff->size = size;
+	buff->last_pos = 0;
 
 	return OP_SUCCESS;
 }
@@ -128,30 +128,38 @@ int qc_buffer_recv(int fd, qc_buffer_t * buff){
     return total;
 }
 
-/*take a look a this function*/
-int qc_buffer_send(int fd, qc_buffer_t * buff){
+int buffer_send(int fd, qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    int res = -1;
-    if(buff->end > 0 && fd > 0){
-        int total = 0;
-        int nbytes = 0;
-        while((nbytes = send(fd,buff->buff + total, buff->end- total, MSG_NOSIGNAL)) > 0){
-            total +=nbytes;
-        };
+	int total, nbytes, size;
+	if((buff->end <= 0) | (fd < 0))
+		return -EINVAL;
 
-        res = nbytes == -1 ? nbytes : total;
-        if(nbytes == -1){
-            if(errno != EAGAIN && errno!=EWOULDBLOCK){
-                perror("send()");
-            }
-        }
-        /*resets buffer's allocated memory, this could be a free but, if the client stays connected
-         *unnecessary reallocs will be called again despite havin already allocated enough memory for this
-         client, specially if it has stored big messages priviously*/
-        qc_buffer_reset(buff);
-    }
-    return res;
+	/*Are we dealing with a left out chunk or a complete buffer?*/
+	char * tmp_buff;
+	if(buff->last_pos > 0)
+		tmp_buff = buff->buff + buff->last_pos;
+	else
+		tmp_buff = buff->buff;
+
+	total = nbytes = 0;
+	while(1){
+		size = buff->end - total;
+		nbytes = send(fd, tmp_buff + total, size, MSG_NOSIGNAL);
+		if(nbytes > 0){
+			total += nbytes;
+		}else if(nbytes == -1){
+			if(nbytes != EAGAIN && nbytes != EWOULDBLOCK) 
+				perror("send");
+			buff->last_pos = total;
+			break; /*kernel write buff ran out of room*/
+		}else{
+			buff->last_pos = 0; /*the entire buffer was sent*/
+			break; /*size became zero, nothing else to send*/
+		}
+	}
+	return nbytes == 0 ? total : nbytes;
 }
+
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     if( flag & DEBUG_RAW_BYTES ){

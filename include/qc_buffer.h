@@ -9,10 +9,11 @@
 #define DEFAULT_BUFF_SIZE 264
 
 typedef struct qc_buffer {
-    char * buff;
-    size_t start;
-    size_t end;
-    size_t size;
+	char * buff;
+	size_t start;
+	size_t end;
+	size_t size;
+	size_t last_pos; /*Keep track of last state if send returned EAGAIN*/
 } qc_buffer_t;
 
 
@@ -23,6 +24,7 @@ int  qc_buffer_append(qc_buffer_t * buff, char * from , size_t size);
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag);
 
 void qc_buffer_reset(qc_buffer_t * buff);
-int  qc_buffer_send(int fd, qc_buffer_t * buff);
 int qc_buffer_recv(int fd, qc_buffer_t * recv_buff);
+
+int buffer_send(int fd, qc_buffer_t * buff);
 #endif
