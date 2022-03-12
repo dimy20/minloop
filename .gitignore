@@ -2,4 +2,3 @@ bin
 *.o
 build/*.o
 todo
-main.c

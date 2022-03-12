@@ -15,13 +15,20 @@ loop_t loop;
 void on_data(stream_t * peer, event_t ev){
 	char * buff;
 	size_t size;
+	int err;
 	if(ev == EV_READ){
 		buff = stream_read(peer, &size);
 		printf("%s\n", buff);
+		/*echo*/
+		err = stream_write(peer, buff, size);
+		if(err < 0)
+			LOG_ERROR(err);
+
 	}else if(ev == EV_CLOSE){
 		printf("peer closed connection\n");
 	}
 }
+
 void on_connection(stream_t * server){
 	stream_t * peer;
 	int err;
@@ -34,6 +41,7 @@ void on_connection(stream_t * server){
 
 int main(){
 	int err;
+	printf("running\n"); 
 	stream_t * server;
 
 	loop_init(&loop);
