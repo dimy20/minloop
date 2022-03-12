@@ -12,6 +12,7 @@
 #include <arpa/inet.h>
 #include <assert.h>
 #include <error.h>
+#include <sys/epoll.h>
 
 #include "../include/net.h"
 
@@ -257,3 +258,22 @@ int issocket_bound(int fd){
 }
 
 
+
+int nepoll_ctl(int efd, int op, int fd, uint32_t events){
+	struct epoll_event ev;
+	int err;
+	memset(&ev, 0, sizeof(ev));
+	ev.data.fd = fd;
+	ev.events = events;
+
+	err = epoll_ctl(efd, op, fd, &ev);
+
+	if(err == -1){
+		/*ignore this one*/
+		if(errno != EEXIST){
+			perror("epoll_ctl");
+			return err;
+		}
+	}
+	return err;
+}

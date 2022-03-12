@@ -8,6 +8,7 @@
 #include "../include/loop.h"
 #include "../include/error.h"
 #include "../include/queue.h"
+#include "../include/net.h"
 
 static int loop_retry_io(loop_t * loop);
 
@@ -118,28 +119,19 @@ void poll_io(loop_t * loop){
 }
 
 int loop_watch_io(loop_t * loop, io_core_t * ioc){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(ioc != NULL && "io_core_t pointer is NULL");
 	assert(loop->efd != ioc->fd && "epoll should never watch itself");
 
 	/*fd is -1 for some reason*/
+	int err;
 	if(ioc->fd == IO_OFF){
 		return IO_OFF;
 	}
 
-    struct epoll_event ev;
-	int err;
-
-    memset(&ev, 0, sizeof(ev));
-    ev.data.fd = ioc->fd; 
-	ev.events = ioc->events; 
-	err = epoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, &ev); 
-
-	if(err == -1){ 
-		if(errno != EEXIST){ /*ignore this one*/
-			err = -EIO_LOOP_WATCH;
-			perror("epoll_ctl");
-			return err;
-		}
-	}
+	err = nepoll_ctl(loop->efd, EPOLL_CTL_ADD, ioc->fd, ioc->events);
+	if(err < 0)
+		return -EIO_LOOP_WATCH;
 
 	err = vector_insert(&loop->io_watchers, ioc->fd, ioc);
 	if(err < 0)

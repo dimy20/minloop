@@ -23,4 +23,5 @@ int file_exists(char * filename);
 
 int issocket_bound(int fd);
 
+int nepoll_ctl(int efd, int op, int fd, uint32_t events);
 #endif
