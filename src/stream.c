@@ -74,11 +74,12 @@ int stream_init(loop_t * loop, stream_t * stream){
 	assert(stream != NULL && "stream pointer is NULL");
 	memset(stream, 0, sizeof(stream_t));
 	int err;
-
+    uint32_t events;
 	/*_io_activity_cb is the default callback for io_cores but it can be modified
 	 * if the io_core is used for other types of sockets, for exmaple if it is 
 	 * supposed to accept connections it can be changed to point to server_cb*/
-	io_core_init(&stream->io_ctl, IO_OFF, EPOLLIN | EPOLLET, _io_activity_cb);
+	events = EPOLLIN | EPOLLET;
+	io_core_init(&stream->io_ctl, IO_OFF, events, _io_activity_cb);
 
 	/*init io buffers*/
 	for(int i = 0; i < 2; i++){
@@ -125,7 +126,7 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 
 	server->on_connection = on_connection;
 
-	err = ntcp_listen(iocore_getfd(&server->io_ctl), 10);
+	err = ntcp_listen(server->io_ctl.fd, 10);
 	if(err < 0){
 		perror("ntcp_listen");
 		return err;
