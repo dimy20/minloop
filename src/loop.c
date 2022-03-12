@@ -102,18 +102,18 @@ void poll_io(loop_t * loop){
     error_exit(ret, "epoll_wait");
 
     for(int i = 0; i < ret; i++){
+		fd = ev[i].data.fd;
+		ioc = loop->io_watchers.arr[fd];
         if(ev[i].events & EPOLLIN){
-			fd = ev[i].data.fd;
-			ioc = loop->io_watchers.arr[fd];
 			if(ioc != NULL && ioc->cb != NULL){
-				ioc->cb(ioc, EV_CONNECTION);
+				ioc->cb(loop, ioc, EPOLLIN);
 			}
         }
-		/*
         if(ev[i].events & EPOLLOUT){
-            printf("EPOLLOUT event \n");
+			if(ioc != NULL && ioc->cb != NULL){
+				ioc->cb(loop, ioc, EPOLLOUT);
+			}
         }
-		*/
     }
 
 }
@@ -159,7 +159,7 @@ int loop_clean_up(loop_t * loop){
 		node = queue_pop(loop->cleanup_q);
 		ioc = qnode_val(node);
 		vector_remove(&loop->io_watchers, ioc->fd);
-		ioc->status = EV_ERROR;
+		ioc->status = 0; //EV_ERROR;
 		close(ioc->fd);
 	}
 	return OP_SUCCESS;
