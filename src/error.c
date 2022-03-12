@@ -19,6 +19,8 @@ const char * errstr(int err_code){
 			return EIO_ACCEPT_STR;
 		case EIO_ACCEPT_LISTEN:
 			return EIO_ACCEPT_LISTEN_STR;
+		case EIO_INVAL_EV:
+			return EIO_INVAL_EV_STR;
 	}
 	return ERROR_CODE_UNKNOWN;
 }
