@@ -186,3 +186,17 @@ char * stream_read(stream_t * stream, size_t * size){
 	}
 	return ret;
 }
+
+int stream_write(stream_t * stream, char * buff, size_t size){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	int err;
+	err = qc_buffer_append(&stream->bufs[OUT_BUFF], buff, size);
+	if(err < 0)
+		return err;
+	return err;
+}
+
+int stream_send_ready(const stream_t * stream){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	return !buffer_empty(&stream->bufs[OUT_BUFF]);
+}

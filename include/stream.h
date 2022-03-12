@@ -25,12 +25,13 @@ struct stream_s;
 
 
 int stream_init(loop_t * loop, stream_t * stream);
-/*decide later where the addr and port should be passed + other options*/
 int stream_server(stream_t * server, char *hostname, char *port); 
 int stream_listen(stream_t * server, connection_cb on_connection);
 int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data);
 stream_t * stream_new(loop_t * loop);
 void stream_free(stream_t * stream);
 char * stream_read(stream_t * stream, size_t * size);
+int stream_write(stream_t * stream, char * buff, size_t size);
+int stream_send_ready(const stream_t * stream);
 
 #endif
