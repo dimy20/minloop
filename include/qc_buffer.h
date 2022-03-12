@@ -27,4 +27,5 @@ void qc_buffer_reset(qc_buffer_t * buff);
 int qc_buffer_recv(int fd, qc_buffer_t * recv_buff);
 
 int buffer_send(int fd, qc_buffer_t * buff);
+int buffer_empty(const qc_buffer_t * buff);
 #endif

@@ -183,3 +183,7 @@ void qc_buffer_reset(qc_buffer_t * buff){
     buff->end = 0;
 }
 
+int buffer_empty(const qc_buffer_t * buff){
+	assert(buff != NULL && "qc_buffer_t pointer is NULL");
+	return buff->end == 0;
+}
