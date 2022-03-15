@@ -20,14 +20,13 @@ typedef struct qc_buffer {
 
 
 void qc_buffer_free(qc_buffer_t * buff);
-int  qc_buffer_resize(qc_buffer_t * buff, size_t size); /*should this be exposed?*/
 int  qc_buffer_append(qc_buffer_t * buff, char * from , size_t size);
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag);
 
 void qc_buffer_reset(qc_buffer_t * buff);
-int qc_buffer_recv(int fd, qc_buffer_t * recv_buff);
 
 int buffer_init(qc_buffer_t * buff);
 int buffer_send(int fd, qc_buffer_t * buff);
 int buffer_empty(const qc_buffer_t * buff);
+int buffer_maybe_resize(qc_buffer_t * buff, int size);
 #endif

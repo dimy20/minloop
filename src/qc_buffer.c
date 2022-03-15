@@ -41,30 +41,23 @@ int qc_buffer_resize(qc_buffer_t * buff, size_t size){
     return buff->size;
 }
 
-int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
+int buffer_maybe_resize(qc_buffer_t * buff, int size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
+	assert((buff->end < buff->capacity) && "buffer size should never exceed capacity");
 
+	size_t new_cap;
 	int err;
-    if(size == 0)
-		return -EINVAL;
 
-	if((buff->end << 1) > buff->size){
-		// resize by two times current end of buff
-		err = qc_buffer_resize(buff, buff->end << 1);
-		if(err < 0)
-			return err;
+	err = 0;
+	if(size >= (buff->capacity - buff->end)){
+		new_cap = ((buff->capacity * 2) - buff->end ) > size ? buff->capacity * 2 : size * 2;
+		buff->data= realloc(buff->data, sizeof(char) * new_cap);
+		if(buff->data == NULL) return -EALLOC;
+		memset(buff->data + buff->end, 0, new_cap - buff->capacity);
+		buff->capacity = new_cap;
+		err = new_cap;
 	}
-	if((buff->end + size) > buff->size){
-		// resize by extra space needed
-		err = qc_buffer_resize(buff,size);
-		if(err < 0)
-			return err;
-	}
-	memcpy(buff->buff + buff->end, from, size);
-	buff->end += size;
 
-	/*Since we could have resized, initialize all bytes to 0 after the end of the buff*/
-	memset(buff->buff + buff->end, 0, buff->size - buff->end); 
 	return err;
 }
 
