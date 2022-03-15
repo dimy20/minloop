@@ -95,9 +95,9 @@ int buffer_send(int fd, qc_buffer_t * buff){
 	/*Are we dealing with a left out chunk or a complete buffer?*/
 	char * tmp_buff;
 	if(buff->last_pos > 0)
-		tmp_buff = buff->buff + buff->last_pos;
+		tmp_buff = buff->data + buff->last_pos;
 	else
-		tmp_buff = buff->buff;
+		tmp_buff = buff->data;
 
 	total = nbytes = 0;
 	while(1){
@@ -121,22 +121,22 @@ int buffer_send(int fd, qc_buffer_t * buff){
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
     if( flag & DEBUG_RAW_BYTES ){
-        for(int i = buff->start; i < buff->size; i++){
-            printf("%d ",buff->buff[i]);
+        for(int i = buff->start; i < buff->capacity; i++){
+            printf("%d ",buff->data[i]);
         }
         printf("\n");
     }
     if( flag & DEBUG_STRING){
-        printf("%s\n",buff->buff);
+        printf("%s\n",buff->data);
     }
     if( flag & DEBUG_BUFFINFO){
-        printf("(start = %ld), (end = %ld), (size = %ld) \n", buff->start, buff->end, buff->size);
+        printf("(start = %ld), (end = %ld), (size = %ld) \n", buff->start, buff->end, buff->capacity);
     }
     
 }
 void qc_buffer_reset(qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    memset(buff->buff,0,buff->end);
+    memset(buff->data,0,buff->end);
     buff->start = 0;
     buff->end = 0;
 }
@@ -144,4 +144,8 @@ void qc_buffer_reset(qc_buffer_t * buff){
 int buffer_empty(const qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
 	return buff->end == 0;
+}
+
+void qc_buffer_free(qc_buffer_t * buff){
+    free(buff->data);
 }
