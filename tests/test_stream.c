@@ -40,11 +40,13 @@ void mock_data(char * dest, int size){
 void test_stream_send(void){
 	char buff[BUFF_SIZE];
 	mock_data(buff, BUFF_SIZE);
-
+	int err;
 	loop_init(&loop);
 	stream_t * stream = stream_new(&loop);
 	TEST_CHECK(stream != NULL);
-	TEST_CHECK(stream_write(stream, buff, BUFF_SIZE) == BUFF_SIZE);
+	err = stream_write(stream, buff, BUFF_SIZE);
+
+	TEST_CHECK(err == BUFF_SIZE);
 	TEST_CHECK(stream_send_ready(stream));
 }
 TEST_LIST = {

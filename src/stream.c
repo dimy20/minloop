@@ -26,7 +26,7 @@ static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	stream = container_of(ioc, stream_t, io_ctl);
 
 	if((status == EPOLLIN) && (stream != NULL)){
-		err = qc_buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
+		err = buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
 		if(err < 0)
 			LOG_ERROR(err);
 		ev = err > 0 ? EV_READ : EV_CLOSE;
@@ -83,7 +83,7 @@ int stream_init(loop_t * loop, stream_t * stream){
 
 	/*init io buffers*/
 	for(int i = 0; i < 2; i++){
-		err = qc_buffer_init(&stream->bufs[i], 0);
+		err = buffer_init(&stream->bufs[i]);
 		if(err < 0) return err;
 	}
 		

@@ -2,3 +2,4 @@ bin
 *.o
 build/*.o
 todo
+test.c
