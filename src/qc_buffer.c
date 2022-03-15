@@ -23,22 +23,20 @@ int buffer_init(qc_buffer_t * buff){
 	return OP_SUCCESS;
 }
 
-void qc_buffer_free(qc_buffer_t * buff){
-    free(buff->buff);
-    buff->buff = NULL;
-    buff = NULL;
-}
-
-int qc_buffer_resize(qc_buffer_t * buff, size_t size){
+int qc_buffer_append(qc_buffer_t * buff, char * from, size_t size){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
 
-	buff->buff = realloc(buff->buff, size);
-	/*Failed to allocte*/
-	if(buff->buff == NULL && size != 0)
-		return -EALLOC;
+	int err;
+    if(size == 0)
+		return -EINVAL;
 
-    buff->size += size;
-    return buff->size;
+	err = buffer_maybe_resize(buff, size);
+	if(err < 0) return err;
+
+	memcpy(buff->data + buff->end, from, size);
+	buff->end += size;
+
+	return buff->end;
 }
 
 int buffer_maybe_resize(qc_buffer_t * buff, int size){
