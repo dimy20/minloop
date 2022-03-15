@@ -181,7 +181,7 @@ char * stream_read(stream_t * stream, size_t * size){
 	assert(stream != NULL && "stream_t pointer is NULL");
 	char * ret = NULL;
 	if(stream->bufs[IN_BUFF].end > 0){
-		ret = stream->bufs[IN_BUFF].buff;
+		ret = stream->bufs[IN_BUFF].data;
 		*size = stream->bufs[IN_BUFF].end;
 	}
 	return ret;
