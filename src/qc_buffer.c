@@ -10,21 +10,15 @@
 #include "../include/qc_buffer.h"
 #include "../include/error.h"
 
-int qc_buffer_init(qc_buffer_t * buff, size_t size){
+int buffer_init(qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
+	memset(buff, 0, sizeof(qc_buffer_t));
 
-    memset(buff,0,sizeof(qc_buffer_t));
-    buff->buff = malloc(sizeof(char) * size);
-	/*failed to allocate*/
-	if(buff->buff == NULL && size != 0)
-		return -EALLOC;
-
-    memset(buff->buff,0,sizeof(char) * size); 
-
-	buff->start = 0;
-	buff->end = 0;
-	buff->size = size;
-	buff->last_pos = 0;
+	buff->start = buff->end = buff->last_pos = 0;
+	buff->capacity = BUFF_CAPACITY;
+	buff->data = malloc(sizeof(char) * buff->capacity);
+	if(buff->data == NULL) return -EALLOC;
+	memset(buff->data, 0, sizeof(char) * buff->capacity);
 
 	return OP_SUCCESS;
 }
