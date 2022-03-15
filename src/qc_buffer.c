@@ -61,58 +61,31 @@ int buffer_maybe_resize(qc_buffer_t * buff, int size){
 	return err;
 }
 
-int qc_buffer_recv(int fd, qc_buffer_t * buff){
+int buffer_recv(int fd, qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-    int nbytes, ret, is_blocking, data_available;
-    size_t total = 0;
-    char aux[DEFAULT_BUFF_SIZE];
-    size_t size = DEFAULT_BUFF_SIZE;
-    memset(aux,0,sizeof(aux));
-    ret = fcntl(fd,F_GETFL,0);
-    is_blocking = !(ret & SOCK_NONBLOCK);
+	int nbytes, err;
+	nbytes = 0;
 
-    data_available = 1;
-    nbytes = 1;
-    /*The fd socket is set to be non-blockig.
-     * We need to check for the return value of recv to make the propper adjustments,
-     * if -1 is returned this means no data is available yet, we can break out of the
-     * loop yet because we will not get notified again when data is available to read
-     * (non-blocking), we only break out of the loop when no more data is available,
-     * that is retur value 0.
-     * When we implement a multiplexing function here, we wont need to do this,
-     * given than will suscribed this fd to be monitored for reading and will get
-     * nofified by the kernel when data is available, them will now for sure data is 
-     * available and we can read it all, still in a non-blocking manner.
-     * Until that is put in place, will use this solution.
-     * A way to avoid using epoll (no as efficient )would be to specify on the very first bytes(header),
-     * how much data we should expect to receive!(request size), so all we need to do
-     * is keep track of how much data we have received yet until it matches the specified
-     * request size!!.(This probably will stil have to be done when we add epoll to this.)
-     * */
+	while(1){
+		err = buffer_maybe_resize(buff, CHUNK_SIZE);
+		if(err < 0)
+			return err;
+		assert(CHUNK_SIZE < (buff->capacity - buff->end));
+		nbytes = recv(fd, buff->data + buff->end, CHUNK_SIZE, 0);
+		if(nbytes > 0){
+			buff->end += nbytes;
+		}else if(nbytes == 0){
+			return nbytes;
+		}else{
+			if(errno != EAGAIN && errno != EWOULDBLOCK){
+				perror("recv");
+				return nbytes;
+			}
+			break; /*no data yet do nothing, return total so far*/
+		}
+	}
 
-    while(data_available){
-        nbytes = recv(fd,aux + total, size - total,0);
-        if(nbytes > 0){
-            total+=nbytes;
-            qc_buffer_append(buff,aux,nbytes);
-            /*Warning!!*/
-            if(is_blocking)
-                break;
-        }else if(nbytes == -1){
-            /*break when EAGAIN*/
-            if(errno != EAGAIN && errno != EWOULDBLOCK){
-                perror("recv()");
-            }
-            data_available = 0;
-            //break;
-        }else{
-            /*connection is closing!!!*/
-            data_available = 0;
-            break;
-        }
-    }
-    /*nbytes will be 0 when the other end drops the connection or when EAGAIN*/
-    return total;
+	return buff->end;
 }
 
 int buffer_send(int fd, qc_buffer_t * buff){

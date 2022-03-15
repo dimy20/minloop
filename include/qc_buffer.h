@@ -29,4 +29,5 @@ int buffer_init(qc_buffer_t * buff);
 int buffer_send(int fd, qc_buffer_t * buff);
 int buffer_empty(const qc_buffer_t * buff);
 int buffer_maybe_resize(qc_buffer_t * buff, int size);
+int buffer_recv(int fd, qc_buffer_t* buff);
 #endif
