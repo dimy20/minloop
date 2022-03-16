@@ -11,11 +11,11 @@ int ntcp_listen(int fd, int backlog);
 
 int ntcp_server(char * hostname, char * port);
 
-int fd_set_nonblocking(int fd);
+int nsock_nonblock(int fd);
 /*Creates a unix domain socket for listening and binds it to sock_name*/
 int net_create_server_usock(char * sock_name);
 /*Connects to other end of unix domain socker named sock_name*/
-int net_connect_usock(char * sock_name);
+int nconnect_unix(char * sock_name);
 
 int net_connect(char * host, uint16_t port);
 

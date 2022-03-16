@@ -52,7 +52,8 @@ int new_socket(int family, int socktype, int protocol){
 		return NET_ERR(errno);
 	};
 
-	ret = fd_set_nonblocking(fd);
+	ret = nsock_nonblock(fd);
+
 	if(ret < 0){
 		perror("failed to make socket non-blocking");
 		return NET_ERR(errno);
@@ -135,7 +136,7 @@ int ntcp_server(char * hostname, char * port){
 
 
 
-int fd_set_nonblocking(int fd){
+int nsock_nonblock(int fd){
 	if(fd <= 0)
 		return -EINVAL;
 	int flags;
