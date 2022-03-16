@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <string.h>
 #include <stdio.h>
+#include <unistd.h>
 #include "../include/stream.h"
 #include "../include/net.h"
 #include "../include/core.h"
@@ -162,6 +163,8 @@ stream_t * stream_new(loop_t * loop){
 }
 
 void stream_free(stream_t * stream){
+	qc_buffer_free(&stream->bufs[IN_BUFF]);
+	qc_buffer_free(&stream->bufs[OUT_BUFF]);
 	free(stream);
 }
 
@@ -196,4 +199,15 @@ int stream_write(loop_t * loop, stream_t * stream, char * buff, size_t size){
 int stream_send_ready(const stream_t * stream){
 	assert(stream != NULL && "stream_t pointer is NULL");
 	return !buffer_empty(&stream->bufs[OUT_BUFF]);
+}
+
+int stream_close(loop_t * loop, stream_t * stream){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(stream != NULL && "stream_t pointer is NULL");
+	int err;
+	vector_remove(&loop->io_watchers, stream->io_ctl.fd);
+	close(stream->io_ctl.fd);
+	stream_free(stream);
+	return OP_SUCCESS;
+	//queue_insert(loop->cleanup_q, &stream->io_ctl);
 }
