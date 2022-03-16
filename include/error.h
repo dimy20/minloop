@@ -21,6 +21,7 @@
 #define EIO_ACCEPT_LISTEN 0x20 /*Bad fd*/
 #define EIO_INVAL_EV      0x40 /*invalid event passed to ioctl*/
 #define EIO_BUSY          0x80 /*Operation attempt on busy io, fd is in use*/
+#define EIO_BAD_IO        9 
 /*Status codes*/
 #define IO_OFF -1 /*This means not descriptor has been assigned yet.*/
 
@@ -30,6 +31,7 @@
 #define EIO_ACCEPT_STR "Failed to accept peer connection"
 #define EIO_ACCEPT_LISTEN_STR "Attempt to accept on non-listening stream"
 #define EIO_INVAL_EV_STR "Invalid event passed to ioctl"
+#define EIO_BAD_IO_STR "Bad io_core access in the loop"
 
 void error_log(char * msg);
 void error_exit(int ret, char * msg);
