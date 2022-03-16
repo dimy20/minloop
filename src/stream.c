@@ -173,14 +173,19 @@ void stream_free(stream_t * stream){
 	free(stream);
 }
 
-char * stream_read(stream_t * stream, size_t * size){
+int stream_read(stream_t * stream, char * buff, int size){
 	assert(stream != NULL && "stream_t pointer is NULL");
-	char * ret = NULL;
-	if(stream->bufs[IN_BUFF].end > 0){
-		ret = stream->bufs[IN_BUFF].data;
-		*size = stream->bufs[IN_BUFF].end;
-	}
-	return ret;
+	assert(stream->bufs[IN_BUFF].start <= stream->bufs[IN_BUFF].end);
+	qc_buffer_t * in_buff;
+
+	if(buffer_empty(&stream->bufs[IN_BUFF]))
+		return 0;
+
+	in_buff = &stream->bufs[IN_BUFF];
+	size = (size > (in_buff->end - in_buff->start)) ? in_buff->end - in_buff->start : size;
+	memcpy(buff, in_buff->data + in_buff->start, size);
+	in_buff->start += size;	
+	return size;
 }
 
 int stream_write(loop_t * loop, stream_t * stream, char * buff, size_t size){
