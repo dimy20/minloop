@@ -131,7 +131,7 @@ int stream_listen(stream_t * server, connection_cb on_connection){
 	return OP_SUCCESS;
 }
 
-int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data){
+int stream_accept(const stream_t * server , stream_t * peer){
 	assert(server != NULL && "stream_t pointer is NULL");
 	assert(peer != NULL && "stream_t pointer is NULL");
 
@@ -145,7 +145,6 @@ int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data){
 
 	nsock_nonblock(server->accepted_fd);
 	peer->io_ctl.fd = server->accepted_fd;
-	peer->on_data = on_data; /*point to user-defined on_data cb*/
 
 	return 0;
 }
