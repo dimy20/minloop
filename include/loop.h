@@ -8,7 +8,7 @@
 
 #define MAX_EVENTS 16
 #define VEC_DEFAULT 32 
-#define TEMP_TIMEOUT 0 /*This will be removed later*/
+#define TEMP_TIMEOUT 50/*This will be removed later*/
 
 typedef struct loop_s loop_t;
 
