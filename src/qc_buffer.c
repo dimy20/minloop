@@ -76,7 +76,6 @@ int buffer_recv(int fd, qc_buffer_t * buff){
 			return nbytes;
 		}else{
 			if(errno != EAGAIN && errno != EWOULDBLOCK){
-				perror("recv");
 				return nbytes;
 			}
 			break; /*no data yet do nothing, return total so far*/
