@@ -25,23 +25,12 @@ static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	stream_t * stream;
 	stream = container_of(ioc, stream_t, io_ctl);
 
+
 	if((status == EPOLLIN) && (stream != NULL)){
 		err = buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
-		if(err < 0)
-			LOG_ERROR(err);
+		catch_error(err);
 		ev = err > 0 ? EV_READ : EV_CLOSE;
 		stream->on_data(stream, ev);
-
-		/*user appended data to out_buff, try to send*/
-		if(!buffer_empty(&stream->bufs[OUT_BUFF])){
-			err = buffer_send(stream->io_ctl.fd, &stream->bufs[OUT_BUFF]);
-			if(err > 0)
-				qc_buffer_reset(&stream->bufs[OUT_BUFF]);
-			else if(err == -1){ /*failed due to kernel buff full*/
-				ioctl(&stream->io_ctl, IOCTL_ADD, EPOLLOUT);
-				nepoll_ctl(loop->efd, EPOLL_CTL_MOD, ioc->fd, ioc->events);
-			}
-		}
 	}
 	/*Now there is space available again, send what was left out.*/
 	if(status == EPOLLOUT){
@@ -53,7 +42,6 @@ static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 		}
 	}
 
-	return;
 }
 
 static void server_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
@@ -187,12 +175,21 @@ char * stream_read(stream_t * stream, size_t * size){
 	return ret;
 }
 
-int stream_write(stream_t * stream, char * buff, size_t size){
+int stream_write(loop_t * loop, stream_t * stream, char * buff, size_t size){
 	assert(stream != NULL && "stream_t pointer is NULL");
 	int err;
 	err = qc_buffer_append(&stream->bufs[OUT_BUFF], buff, size);
-	if(err < 0)
-		return err;
+	if(err < 0) return err;
+		
+	if(!buffer_empty(&stream->bufs[OUT_BUFF])){
+		err = buffer_send(stream->io_ctl.fd, &stream->bufs[OUT_BUFF]);
+		if(err > 0)
+			qc_buffer_reset(&stream->bufs[OUT_BUFF]);
+		else if(err == -1){ /*failed due to kernel buff full*/
+			ioctl(&stream->io_ctl, IOCTL_ADD, EPOLLOUT);
+			nepoll_ctl(loop->efd, EPOLL_CTL_MOD, stream->io_ctl.fd, stream->io_ctl.events);
+		}
+	}
 	return err;
 }
 

@@ -31,7 +31,7 @@ int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data);
 stream_t * stream_new(loop_t * loop);
 void stream_free(stream_t * stream);
 char * stream_read(stream_t * stream, size_t * size);
-int stream_write(stream_t * stream, char * buff, size_t size);
+int stream_write(loop_t * loop, stream_t * stream, char * buff, size_t size);
 int stream_send_ready(const stream_t * stream);
 
 #endif
