@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <errno.h>
+#include <string.h>
 
 #include "../include/error.h"
 #include "../include/core.h"
@@ -42,4 +44,15 @@ void error_malloc(void * mem){
         error_log("Malloc failed to allocate");
         exit(EXIT_FAILURE);
     }
+}
+
+int catch_error(int err){
+	if(err < 0){
+		if(err == -1){
+			fprintf(stderr,"Errno: %s \n", strerror(errno));
+		}else{
+			LOG_ERROR(err);
+		}
+	}
+	return err;
 }
