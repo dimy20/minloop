@@ -214,7 +214,10 @@ int stream_send_ready(const stream_t * stream){
 int stream_close(loop_t * loop, stream_t * stream){
 	assert(loop != NULL && "loop_t pointer is NULL");
 	assert(stream != NULL && "stream_t pointer is NULL");
-	int err;
+
+	if(loop->io_watchers.arr[stream->io_ctl.fd] != &stream->io_ctl)
+		return -EIO_BAD_IO;
+
 	vector_remove(&loop->io_watchers, stream->io_ctl.fd);
 	close(stream->io_ctl.fd);
 	stream_free(stream);
