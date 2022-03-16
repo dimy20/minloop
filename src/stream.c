@@ -138,6 +138,7 @@ int stream_accept(const stream_t * server , stream_t * peer, data_cb on_data){
 	if(server->accepted_fd == -1)
 		return -EIO_ACCEPT_LISTEN;
 
+	nsock_nonblock(server->accepted_fd);
 	peer->io_ctl.fd = server->accepted_fd;
 	peer->on_data = on_data; /*point to user-defined on_data cb*/
 
