@@ -14,24 +14,28 @@ struct stream_s{
 	qc_buffer_t bufs[2];
 	connection_cb on_connection;
 	data_cb on_data;
+	data_cb on_close;
 	int accepted_fd;
 };
-
 
 static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	assert(loop != NULL && "loop_t pointer is NULL");
 	assert(ioc != NULL && "io_core_t pointer is NULL");
-	int err;
-	event_t ev;
+	int err, total;
 	stream_t * stream;
 	stream = container_of(ioc, stream_t, io_ctl);
 
 
 	if((status == EPOLLIN) && (stream != NULL)){
-		err = buffer_recv(ioc->fd, &stream->bufs[IN_BUFF]);
+		total = 0;
+		err = buffer_recv(stream->io_ctl.fd, &stream->bufs[IN_BUFF], &total);
 		catch_error(err);
-		ev = err > 0 ? EV_READ : EV_CLOSE;
-		stream->on_data(stream, ev);
+
+		if((total > 0) && stream->on_data != NULL){
+			stream->on_data(stream, total);
+		}else if ((err == 0 && total == 0) &&  stream->on_close != NULL){
+			stream->on_close(stream, 0);
+		}
 	}
 	/*Now there is space available again, send what was left out.*/
 	if(status == EPOLLOUT){
@@ -79,6 +83,7 @@ int stream_init(loop_t * loop, stream_t * stream){
 	stream->accepted_fd = -1;
 	stream->on_connection = NULL;
 	stream->on_data = NULL;
+	stream->on_close = NULL;
 
 	err = loop_start_io(loop, &stream->io_ctl);
 	if(err < 0) return err;
@@ -210,5 +215,17 @@ int stream_close(loop_t * loop, stream_t * stream){
 	close(stream->io_ctl.fd);
 	stream_free(stream);
 	return OP_SUCCESS;
-	//queue_insert(loop->cleanup_q, &stream->io_ctl);
+}
+
+void stream_on_event(stream_t * stream, int ev, data_cb cb){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	if(ev == EV_READ)
+		stream->on_data = cb;
+	if(ev == EV_CLOSE)
+		stream->on_close = cb;
+}
+
+int stream_has_data(const stream_t * stream){
+	assert(stream != NULL && "stream_t pointer is NULL");
+	return stream->bufs[IN_BUFF].start < stream->bufs[IN_BUFF].end;
 }
