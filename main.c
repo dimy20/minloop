@@ -4,6 +4,7 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <string.h>
 
 #include "include/net.h"
 #include "include/loop.h"
@@ -12,25 +13,40 @@
 
 loop_t loop;
 
-void on_data(stream_t * peer, event_t ev){
-	char * buff;
-	size_t size;
+#define SIZE 512
+
+void on_data(stream_t * peer, int size){
+	char * buff = malloc(sizeof(char) * size);
+	memset(buff, 0, size);
 	int err;
-	if(ev == EV_READ){
-		buff = stream_read(peer, &size);
-	}else if(ev == EV_CLOSE){
-		err = stream_close(&loop, peer);
-		if(err < 0) LOG_ERROR(err);
-		printf("peer closed connection\n");
+
+	printf("Total available to read!: %d\n", size);
+	while(stream_has_data(peer)){
+		err = stream_read(peer, buff, size);
+		printf("%s \n", buff);
+		memset(buff, 0, size);
 	}
+	free(buff);
+}
+
+
+void handle_close(stream_t * peer, int ev){
+	printf("connection closed \n");
+	int err;
+	err = stream_close(&loop, peer);
+	if(err < 0) LOG_ERROR(err);
+		
 }
 
 void on_connection(stream_t * server){
 	stream_t * peer;
 	int err;
+
 	peer = stream_new(&loop);
-	err = stream_accept(server, peer, on_data);
+	err = stream_accept(server, peer);
 	if(err < 0) LOG_ERROR(err);
+	stream_on_event(peer, EV_READ, on_data);
+	stream_on_event(peer, EV_CLOSE , handle_close);
 }
 
 
