@@ -10,6 +10,12 @@
 #define VEC_DEFAULT 32 
 #define TEMP_TIMEOUT 50/*This will be removed later*/
 
+#define EV_ERROR	  1
+#define EV_READ       2
+#define EV_WRITE      3
+#define EV_CONNECTION 4
+#define EV_CLOSE      5
+
 typedef struct loop_s loop_t;
 
 struct loop_s {

@@ -9,20 +9,12 @@
 #define IN_BUFF 0 /*in_buff index*/
 #define OUT_BUFF 1 /*out_buff index*/
 
-#define EV_ERROR 0x01
-#define EV_READ 0x02
-#define EV_CLOSE 0x04
-#define EV_CONNECTION 0x08
-
 typedef unsigned char event_t;
 typedef struct stream_s stream_t;
 typedef void (*connection_cb)(stream_t * server);
 typedef void (*data_cb)(stream_t * stream, int ev);
 
 struct stream_s;
-
-
-
 
 int stream_init(loop_t * loop, stream_t * stream);
 int stream_server(stream_t * server, char *hostname, char *port); 
