@@ -24,7 +24,6 @@ struct loop_s {
     queue_t * pending_q;
 	queue_t * write_q;
 	vector_t io_watchers;
-	vector_t retry_list; /*store non-ready ios here for retry*/
 	int fd_count;
 };
 

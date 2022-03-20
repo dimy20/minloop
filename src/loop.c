@@ -10,7 +10,6 @@
 #include "../include/queue.h"
 #include "../include/net.h"
 
-static int loop_retry_io(loop_t * loop);
 
 void loop_init(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
@@ -29,7 +28,6 @@ void loop_init(loop_t * loop){
     error_exit(ret, "Failed to create epoll instance");
 
 	vector_init(&loop->io_watchers, 0);
-	vector_init(&loop->retry_list, 0);
 
 	loop->fd_count = 0;
     loop->efd = ret;
@@ -98,13 +96,8 @@ void poll_io(loop_t * loop){
 				LOG_ERROR(err);
 				printf("handle error here\n");
 
-			}else if(err == IO_OFF){
-				/*io is currently off, send it to retry list*/
-				vector_push_back(&loop->retry_list, ioc);
 			}
 		}
-
-
     }
 
     memset(&ev, 0, sizeof(struct epoll_event) * MAX_EVENTS);
@@ -175,20 +168,4 @@ int loop_clean_up(loop_t * loop){
 	return OP_SUCCESS;
 }
 
-
-
-static int loop_retry_io(loop_t * loop){
-	assert(loop != NULL && "loop_t pointer loop is NULL");
-	int i, err;
-	io_core_t * io;
-	for(i = 0; i < loop->retry_list.count; i++){
-		io = loop->retry_list.arr[i];
-		if(io->fd != IO_OFF){
-			err = loop_start_io(loop, io);
-			if(err < 0) return err;
-			printf("NOW WE'RE TALKIN BABY\n");
-		}
-	}
-	return OP_SUCCESS;
-}
 
