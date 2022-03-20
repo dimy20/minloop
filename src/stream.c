@@ -27,15 +27,15 @@ static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	stream = container_of(ioc, stream_t, io_ctl);
 
 
-	if((status == EPOLLIN) && (stream != NULL)){
-		total = 0;
-		err = buffer_recv(stream->io_ctl.fd, &stream->bufs[IN_BUFF], &total);
-		catch_error(err);
 
-		if((total > 0) && stream->on_data != NULL){
-			stream->on_data(stream, total);
-		}else if ((err == 0 && total == 0) &&  stream->on_close != NULL){
+	if((status == EPOLLIN) && (stream != NULL)){
+		err = buffer_recv(stream->io_ctl.fd, &stream->bufs[IN_BUFF]);
+		if(err > 0 && stream->on_data != NULL){
+			stream->on_data(stream, err);
+		}else if(err == 0 && stream->on_close != NULL){
 			stream->on_close(stream, 0);
+		}else if(stream->on_error != NULL){
+			stream->on_error(stream, err);
 		}
 	}
 	/*Now there is space available again, send what was left out.*/
