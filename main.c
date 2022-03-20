@@ -23,9 +23,11 @@ void on_data(stream_t * peer, int size){
 	printf("Total available to read!: %d\n", size);
 	while(stream_has_data(peer)){
 		err = stream_read(peer, buff, size);
-		printf("%s \n", buff);
+		//printf("%s\n", buff);
 		memset(buff, 0, size);
 	}
+	/*handle error*/
+
 	free(buff);
 }
 
@@ -38,6 +40,11 @@ void handle_close(stream_t * peer, int ev){
 		
 }
 
+void handle_error(stream_t * peer, int err){
+	catch_error(err);
+	stream_close(&loop, peer);
+}
+
 void on_connection(stream_t * server){
 	stream_t * peer;
 	int err;
@@ -47,6 +54,8 @@ void on_connection(stream_t * server){
 	if(err < 0) LOG_ERROR(err);
 	stream_on_event(peer, EV_READ, on_data);
 	stream_on_event(peer, EV_CLOSE , handle_close);
+	stream_on_event(peer, EV_ERROR, handle_error);
+	stream_write(&loop, peer, "welcome", strlen("welcome"));
 }
 
 
