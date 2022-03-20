@@ -101,7 +101,11 @@ void poll_io(loop_t * loop){
     }
 
     memset(&ev, 0, sizeof(struct epoll_event) * MAX_EVENTS);
-    ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
+
+	do{
+		ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
+	}while(ret < 0 && errno == EINTR);
+
     error_exit(ret, "epoll_wait");
 
     for(int i = 0; i < ret; i++){
