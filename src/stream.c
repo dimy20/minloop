@@ -42,9 +42,33 @@ static void _io_activity_cb(loop_t * loop, io_core_t * ioc, uint8_t status){
 	if(status == EPOLLOUT){
 		err = buffer_send(ioc->fd, &stream->bufs[OUT_BUFF]);
 		if(err > 0){
+			/*remove from epoll*/
 			ioctl(&stream->io_ctl, IOCTL_DEL, EPOLLOUT);
 			nepoll_ctl(loop->efd, EPOLL_CTL_MOD, ioc->fd, ioc->events);
 			qc_buffer_reset(&stream->bufs[OUT_BUFF]);
+		}else if(err == 0 && stream->on_close != NULL){
+			stream->on_close(stream, 0);
+		}else if(stream->on_error != NULL){
+			stream->on_error(stream, err);
+		}
+	}
+
+	if(status == EV_WRITE){
+		if(!buffer_empty(&stream->bufs[OUT_BUFF])){
+			err = buffer_send(stream->io_ctl.fd, &stream->bufs[OUT_BUFF]);
+			if(err > 0)
+				qc_buffer_reset(&stream->bufs[OUT_BUFF]);
+			else if(err == -1){ /*failed due to kernel buff full*/
+				if(stream->bufs[OUT_BUFF].last_pos > 0){
+					ioctl(&stream->io_ctl, IOCTL_ADD, EPOLLOUT);
+					nepoll_ctl(loop->efd, EPOLL_CTL_MOD, stream->io_ctl.fd, stream->io_ctl.events);
+				}else if(stream->on_error != NULL){
+					stream->on_error(stream, err);
+				}
+
+			}else if (stream->on_close != NULL){
+				stream->on_close(stream, err);
+			}
 		}
 	}
 
