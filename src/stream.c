@@ -15,6 +15,7 @@ struct stream_s{
 	connection_cb on_connection;
 	data_cb on_data;
 	data_cb on_close;
+	data_cb on_error;
 	int accepted_fd;
 };
 
@@ -84,6 +85,7 @@ int stream_init(loop_t * loop, stream_t * stream){
 	stream->on_connection = NULL;
 	stream->on_data = NULL;
 	stream->on_close = NULL;
+	stream->on_error = NULL;
 
 	err = loop_start_io(loop, &stream->io_ctl);
 	if(err < 0) return err;
@@ -230,6 +232,8 @@ void stream_on_event(stream_t * stream, int ev, data_cb cb){
 		stream->on_data = cb;
 	if(ev == EV_CLOSE)
 		stream->on_close = cb;
+	if(ev == EV_ERROR)
+		stream->on_error = cb;
 }
 
 int stream_has_data(const stream_t * stream){
