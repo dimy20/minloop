@@ -81,39 +81,39 @@ int buffer_recv(int fd, qc_buffer_t * buff){
 			break; /*no data yet do nothing, return total so far*/
 		}
 	}
-	return buff->end;
+	return total;
 }
 
 int buffer_send(int fd, qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
 	int total, nbytes, size;
+	char * tmp_buff;
 	if((buff->end <= 0) | (fd < 0))
 		return -EINVAL;
 
-	/*Are we dealing with a left out chunk or a complete buffer?*/
-	char * tmp_buff;
-	if(buff->last_pos > 0)
-		tmp_buff = buff->data + buff->last_pos;
-	else
-		tmp_buff = buff->data;
-
 	total = nbytes = 0;
+	/*Are we dealing with a left out chunk or a complete buffer?*/
+	tmp_buff = (buff->last_pos > 0) ? buff->data + buff->last_pos : buff->data;
+
 	while(1){
 		size = buff->end - total;
+		if(size == 0){ /*size became zero, nothing else to send*/
+			buff->last_pos = 0; /*the entire buffer was sent*/
+			break;
+		}
+
 		nbytes = send(fd, tmp_buff + total, size, MSG_NOSIGNAL);
 		if(nbytes > 0){
 			total += nbytes;
-		}else if(nbytes == -1){
-			if(nbytes != EAGAIN && nbytes != EWOULDBLOCK) 
-				perror("send");
-			buff->last_pos = total;
-			break; /*kernel write buff ran out of room*/
+		}else if(nbytes == -1){ /*kernel write buff ran out of room*/
+			buff->last_pos = (errno == EAGAIN || errno == EWOULDBLOCK ) ? total : 0;
+			return nbytes;
 		}else{
-			buff->last_pos = 0; /*the entire buffer was sent*/
-			break; /*size became zero, nothing else to send*/
+			return nbytes;
 		}
 	}
-	return nbytes == 0 ? total : nbytes;
+
+	return total;
 }
 
 void qc_buffer_debug(const qc_buffer_t * buff, u_int8_t flag){
