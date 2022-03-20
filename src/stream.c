@@ -194,17 +194,8 @@ int stream_write(loop_t * loop, stream_t * stream, char * buff, size_t size){
 	assert(stream != NULL && "stream_t pointer is NULL");
 	int err;
 	err = qc_buffer_append(&stream->bufs[OUT_BUFF], buff, size);
+	queue_insert(loop->write_q, &stream->io_ctl);
 	if(err < 0) return err;
-		
-	if(!buffer_empty(&stream->bufs[OUT_BUFF])){
-		err = buffer_send(stream->io_ctl.fd, &stream->bufs[OUT_BUFF]);
-		if(err > 0)
-			qc_buffer_reset(&stream->bufs[OUT_BUFF]);
-		else if(err == -1){ /*failed due to kernel buff full*/
-			ioctl(&stream->io_ctl, IOCTL_ADD, EPOLLOUT);
-			nepoll_ctl(loop->efd, EPOLL_CTL_MOD, stream->io_ctl.fd, stream->io_ctl.events);
-		}
-	}
 	return err;
 }
 
