@@ -59,20 +59,19 @@ int buffer_maybe_resize(qc_buffer_t * buff, int size){
 	return err;
 }
 
-int buffer_recv(int fd, qc_buffer_t * buff, int * total){
+int buffer_recv(int fd, qc_buffer_t * buff){
 	assert(buff != NULL && "qc_buffer_t pointer is NULL");
-	int nbytes, err;
-	nbytes = 0;
+	int nbytes, err, total;
 
+	total = nbytes = 0;
 	while(1){
 		err = buffer_maybe_resize(buff, CHUNK_SIZE);
-		if(err < 0)
-			return err;
+		if(err < 0) return err;
 		assert(CHUNK_SIZE < (buff->capacity - buff->end));
 		nbytes = recv(fd, buff->data + buff->end, CHUNK_SIZE, 0);
 		if(nbytes > 0){
+			total += nbytes;
 			buff->end += nbytes;
-			*total += nbytes;
 		}else if(nbytes == 0){
 			return nbytes;
 		}else{
