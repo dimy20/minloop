@@ -22,6 +22,7 @@ struct loop_s {
     int efd;
 	queue_t * cleanup_q; /*unhealty resources will be queued here for clean up*/
     queue_t * pending_q;
+	queue_t * write_q;
 	vector_t io_watchers;
 	vector_t retry_list; /*store non-ready ios here for retry*/
 	int fd_count;

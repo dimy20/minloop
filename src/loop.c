@@ -19,9 +19,11 @@ void loop_init(loop_t * loop){
     memset(loop, 0, sizeof(loop_t));
 	loop->pending_q = malloc(sizeof(queue_t));
 	loop->cleanup_q = malloc(sizeof(queue_t));
+	loop->write_q = malloc(sizeof(queue_t));
 
     queue_init(loop->pending_q);
 	queue_init(loop->cleanup_q);
+	queue_init(loop->write_q);
 
     ret = epoll_create1(0);
     error_exit(ret, "Failed to create epoll instance");
@@ -54,7 +56,15 @@ void loop_free(loop_t * loop){
 
 void loop_start(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
+	qnode_t * node;
+	io_core_t * ioc;
     while(1){
+		while(!queue_empty(loop->write_q)){
+			node = queue_pop(loop->write_q);
+			ioc = (io_core_t *)qnode_val(node);
+			assert(ioc != NULL && "io_core_t pointer is NULL");
+			ioc->cb(loop, ioc, EV_WRITE);
+		}
         poll_io(loop);
 		loop_clean_up(loop);
     }
