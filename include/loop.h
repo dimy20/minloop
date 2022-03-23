@@ -25,6 +25,7 @@ struct loop_s {
 	queue_t * write_q;
 	vector_t io_watchers;
 	int fd_count;
+	uint64_t time;
 };
 
 void loop_init(loop_t * loop);
@@ -35,6 +36,7 @@ void loop_run_cb(loop_t * loop, int fd);
 int loop_watch_io(loop_t * loop, io_core_t * ioc);
 int loop_start_io(loop_t * loop, io_core_t * ioc);
 int loop_clean_up(loop_t * loop);
+void loop_update_time(loop_t * loop);
 
 #endif
 

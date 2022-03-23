@@ -9,6 +9,7 @@
 #include "../include/error.h"
 #include "../include/queue.h"
 #include "../include/net.h"
+#include "../include/timer.h"
 
 
 void loop_init(loop_t * loop){
@@ -30,7 +31,8 @@ void loop_init(loop_t * loop){
 	vector_init(&loop->io_watchers, 0);
 
 	loop->fd_count = 0;
-    loop->efd = ret;
+	loop->efd = ret;
+	loop->time = timer_get_ms_time();
 }
 
 /*If loop has been allocated on the heap, its the job of the
@@ -65,6 +67,7 @@ void loop_start(loop_t * loop){
 		}
         poll_io(loop);
 		loop_clean_up(loop);
+		loop_update_time(loop);
     }
 }
 
@@ -172,4 +175,7 @@ int loop_clean_up(loop_t * loop){
 	return OP_SUCCESS;
 }
 
-
+void loop_update_time(loop_t * loop){
+	assert(loop != NULL && "loop_t pointer loop is NULL");
+	loop->time = timer_get_ms_time();
+}
