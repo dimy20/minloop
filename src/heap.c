@@ -7,14 +7,15 @@
 int heap_alloc(heap_t * heap){
 	assert(heap != NULL && "heap_t pointer is NULL");
 	heap->capacity = HEAP_DEFAULT_CAPACITY;
-	heap->arr = malloc(sizeof(int) * heap->capacity);
+	heap->arr = malloc(sizeof(int *) * heap->capacity);
 	if(heap->arr == NULL) return -EALLOC;
 	heap->count = 0;
 	return OP_SUCCESS;
 }
-static void swap(int i , int j, int * arr){
+
+static void swap(int i , int j, int ** arr){
 	assert(i>=0 && j>= 0 && arr != NULL);
-	int tmp;
+	int * tmp;
 	tmp = arr[i];
 	arr[i] = arr[j];
 	arr[j] = tmp;
@@ -24,21 +25,20 @@ static int heap_maybe_resize(heap_t * heap){
 	size_t new_cap;
 	if(heap->count >= heap->capacity){
 		new_cap = heap->capacity * 2;
-		heap->arr = realloc(heap->arr, new_cap * sizeof(int));
+		heap->arr = realloc(heap->arr, new_cap * sizeof(int *));
 		if(heap->arr == NULL) return -EALLOC;
 		heap->capacity = new_cap;
 	}
 	return OP_SUCCESS;
 }
-void heapify_up(int * arr, int c_index){
+static void heapify_up(int ** arr, int c_index){
 	assert(arr != NULL && "int pointer is NULL");
-	while(c_index >= 0 && arr[(c_index - 1) / 2] > arr[c_index]){
+	while(c_index >= 0 && *arr[(c_index - 1) / 2] > *arr[c_index]){
 		swap((c_index - 1) / 2, c_index, arr);
 		c_index = (c_index - 1) / 2;
 	}
 }
-
-int heap_insert(heap_t * heap, int val){
+int heap_insert(heap_t * heap, int * val){
 	assert(heap != NULL && "heap_t pointer is NULL");
 	int err;
 	err = heap_maybe_resize(heap);
@@ -47,28 +47,25 @@ int heap_insert(heap_t * heap, int val){
 	heapify_up(heap->arr, heap->count++);
 	return OP_SUCCESS;
 }
-
-void heapify_top_down(int * arr,  int n){
+void heapify_top_down(int ** arr,  int n){
 	assert(arr != NULL && "int pointer is NULL");
 	int i, j;
 
 	i = 0;
 	j = i * 2 + 1;
 	while( j < n - 1){
-		if(arr[j+1] < arr[j])
+		if(*arr[j+1] < *arr[j])
 			j = j+1;
 
-		if(arr[i] >  arr[j]){
+		if(*arr[i] >  *arr[j]){
 			swap(i, j, arr);
 			i = j;
 			j = j * 2 + 1;
-
 		}else{
 			break;
 		}
 	}
 }
-
 void heap_remove(heap_t * heap){
 	assert(heap != NULL && "heap_t pointer is NULL");
 	if(heap->count == 0) return;
@@ -86,9 +83,9 @@ int heap_full(const heap_t * heap){
 	assert(heap != NULL && "heap_t pointer is NULL");
 	return heap->count == heap->capacity;
 }
-int heap_min(const heap_t * heap){
+int * heap_min(const heap_t * heap){
 	assert(heap != NULL && "heap_t pointer is NULL");
-	if(heap->count == 0) return -1;
+	if(heap->count == 0) return NULL;
 	return heap->arr[0];
 }
 
