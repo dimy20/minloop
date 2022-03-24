@@ -1,13 +1,14 @@
 #ifndef TIMER_H
 #define TIMER_H
 #include <stdint.h>
+
+#include "../include/loop.h"
 typedef void(*timer_cb_t)(void);
-typedef struct timer_s timer_t;
+typedef struct timer_s min_timer_t;
 
 struct timer_s{
 	timer_cb_t cb;
-	uint64_t time;
-	uint64_t timeout;
+	int timeout;
 	int repeat;
 };
 
