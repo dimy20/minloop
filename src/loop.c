@@ -25,6 +25,9 @@ void loop_init(loop_t * loop){
 	queue_init(loop->cleanup_q);
 	queue_init(loop->write_q);
 
+	ret = heap_alloc(&loop->timer_heap);
+	if(ret < 0) LOG_ERROR(ret);
+
     ret = epoll_create1(0);
     error_exit(ret, "Failed to create epoll instance");
 
@@ -50,6 +53,7 @@ void loop_free(loop_t * loop){
 
 	free(loop->pending_q);
 	free(loop->cleanup_q);
+	heap_free(&loop->timer_heap);
 }
 
 

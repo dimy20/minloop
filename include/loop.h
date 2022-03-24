@@ -5,6 +5,7 @@
 #include "core.h"
 #include "queue.h"
 #include "vector.h"
+#include "heap.h"
 
 #define MAX_EVENTS 16
 #define VEC_DEFAULT 32 
@@ -25,6 +26,7 @@ struct loop_s {
 	queue_t * write_q;
 	vector_t io_watchers;
 	int fd_count;
+	heap_t timer_heap;
 	uint64_t time;
 };
 
