@@ -11,6 +11,25 @@
 #include "../include/net.h"
 #include "../include/timer.h"
 
+static void run_timers(loop_t * loop){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	int * timeout;
+	min_timer_t * timer;
+	while(1){
+		timeout = heap_min(&loop->timer_heap);
+		if(timeout == NULL)
+			break;
+
+		if(*timeout > loop->time) /*timer still running*/
+			break;
+
+		/*after this point timer is due*/
+		timer = container_of(timeout, min_timer_t, timeout);
+		if(timer == NULL) printf("error\n");
+		timer->cb();
+		heap_remove(&loop->timer_heap);
+	}
+}
 
 void loop_init(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
