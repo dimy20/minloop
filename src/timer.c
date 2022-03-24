@@ -27,3 +27,39 @@ uint64_t timer_get_ms_time(void){
 	return ret;
 }
 
+
+int timer_start(loop_t * loop, min_timer_t * timer, int timeout, timer_cb_t cb){
+	assert(timer != NULL && "timer_t pointer is NULL");
+	assert(loop != NULL && "loop_t pointer is NULL");
+	if(cb == NULL) return -EINVAL;
+	uint64_t expiry;
+
+	loop->time = timer_get_ms_time();
+
+	expiry = loop->time + timeout;
+	if(expiry < timeout)
+		expiry = (uint64_t) - 1;
+
+	timer->timeout = expiry;
+	timer->cb = cb;
+
+	return heap_insert(&loop->timer_heap, &timer->timeout);
+}
+
+int compute_next_timeout(loop_t * loop){
+	assert(loop != NULL && "loop_t pointer is NULL");
+
+	int * timeout;
+	uint64_t diff = 0;
+
+	timeout = heap_min(&loop->timer_heap);
+
+	if(timeout == NULL) return -1;
+
+	/*timeout expired*/
+	if(*timeout <= loop->time) return 0;
+
+	diff = *timeout - loop->time;
+	
+	return diff > INT_MAX ? INT_MAX : diff;
+}

@@ -13,7 +13,10 @@ struct timer_s{
 };
 
 
-void timer_init(timer_t * timer);
-uint64_t timet_get_ms_time(void);
+void timer_init(min_timer_t * timer);
+uint64_t timer_get_ms_time(void);
+int timer_start(loop_t * loop, min_timer_t * timer, int timeout, timer_cb_t cb);
+int compute_next_timeout(loop_t * loop);
 
 #endif
+
