@@ -10,6 +10,7 @@
 #include "include/loop.h"
 #include "include/stream.h"
 #include "include/error.h"
+#include "include/timer.h"
 
 loop_t loop;
 
@@ -20,7 +21,7 @@ void on_data(stream_t * peer, int size){
 	memset(buff, 0, size);
 	int err;
 
-	printf("Total available to read!: %d\n", size);
+	//printf("Total available to read!: %d\n", size);
 	while(stream_has_data(peer)){
 		err = stream_read(peer, buff, size);
 		//printf("%s\n", buff);
@@ -58,6 +59,9 @@ void on_connection(stream_t * server){
 	stream_write(&loop, peer, "welcome", strlen("welcome"));
 }
 
+void timer_cb_test(){
+	printf("timer expired!!!\n");
+}
 
 int main(){
 	int err;
@@ -73,6 +77,11 @@ int main(){
 
 	err = stream_listen(server, on_connection);
 	if(err < 0) LOG_ERROR(err);
+
+	min_timer_t timer_test;
+	timer_init(&timer_test);
+
+	timer_start(&loop, &timer_test, 5000, timer_cb_test);
 
 	loop_start(&loop);
 	return 0;
