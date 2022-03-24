@@ -81,6 +81,7 @@ void loop_start(loop_t * loop){
     assert(loop != NULL && "loop is NULL"); 
 	qnode_t * node;
 	io_core_t * ioc;
+	int timeout;
     while(1){
 		while(!queue_empty(loop->write_q)){
 			node = queue_pop(loop->write_q);
@@ -88,13 +89,15 @@ void loop_start(loop_t * loop){
 			assert(ioc != NULL && "io_core_t pointer is NULL");
 			ioc->cb(loop, ioc, EV_WRITE);
 		}
-        poll_io(loop);
-		loop_clean_up(loop);
+		timeout = compute_next_timeout(loop); /*compute for how long should poll block*/
+		poll_io(loop, timeout);
+		//loop_clean_up(loop);
 		loop_update_time(loop);
+		run_timers(loop); /*run due timers*/
     }
 }
 
-void poll_io(loop_t * loop){
+void poll_io(loop_t * loop, int timeout){
     assert(loop != NULL && "loop is NULL"); 
 
     struct epoll_event ev[MAX_EVENTS];
@@ -129,7 +132,7 @@ void poll_io(loop_t * loop){
     memset(&ev, 0, sizeof(struct epoll_event) * MAX_EVENTS);
 
 	do{
-		ret = epoll_wait(loop->efd, ev, MAX_EVENTS, TEMP_TIMEOUT);
+		ret = epoll_wait(loop->efd, ev, MAX_EVENTS, timeout);
 	}while(ret < 0 && errno == EINTR);
 
     error_exit(ret, "epoll_wait");
@@ -202,3 +205,6 @@ void loop_update_time(loop_t * loop){
 	assert(loop != NULL && "loop_t pointer loop is NULL");
 	loop->time = timer_get_ms_time();
 }
+
+
+
