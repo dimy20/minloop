@@ -4,14 +4,27 @@
 #include <sys/time.h>
 #include <errno.h>
 #include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
 #include "../include/timer.h"
+#include "../include/error.h"
 
-void timer_init(min_timer_t * timer){
+
+
+int timer_init(min_timer_t * timer, int repeat){
 	assert(timer != NULL && "timer_t pointer is NULL");
 	memset(timer, 0, sizeof(min_timer_t));
+	if(repeat < 0 ) return -EINVAL;
+
 	timer->cb = NULL;
-	timer->timeout = 0;
-	timer->repeat = 0;
+	timer->timeout_ms = 0;
+	timer->clamped_timeout= 0;
+	timer->flags = 0;
+	timer->r_count = 0;
+	timer->repeat = repeat;
+	if(timer->repeat > 0)
+		timer->flags |= TIMER_REPEAT;
+	return OP_SUCCESS;
 }
 
 uint64_t timer_get_ms_time(void){
