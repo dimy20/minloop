@@ -13,19 +13,20 @@
 
 static void run_timers(loop_t * loop){
 	assert(loop != NULL && "loop_t pointer is NULL");
-	int * timeout;
+	int * clamped_timeout;
 	min_timer_t * timer;
 	while(1){
-		timeout = heap_min(&loop->timer_heap);
-		if(timeout == NULL)
+		clamped_timeout = heap_min(&loop->timer_heap);
+		if(clamped_timeout== NULL)
 			break;
 
-		if(*timeout > loop->time) /*timer still running*/
+		if(*clamped_timeout > loop->time) /*timer still running*/
 			break;
 
 		/*after this point timer is due*/
-		timer = container_of(timeout, min_timer_t, timeout);
-		if(timer == NULL) printf("error\n");
+		timer = container_of(clamped_timeout, min_timer_t, clamped_timeout);
+		if(timer == NULL)
+			break;
 		timer->cb();
 		heap_remove(&loop->timer_heap);
 	}
