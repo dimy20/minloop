@@ -41,38 +41,69 @@ uint64_t timer_get_ms_time(void){
 }
 
 
-int timer_start(loop_t * loop, min_timer_t * timer, int timeout, timer_cb_t cb){
+int timer_start(loop_t * loop, min_timer_t * timer, int timeout_ms, timer_cb_t cb){
 	assert(timer != NULL && "timer_t pointer is NULL");
 	assert(loop != NULL && "loop_t pointer is NULL");
-	if(cb == NULL) return -EINVAL;
+	if(cb == NULL || timeout_ms < 0) return -EINVAL;
+	/*
+	if(timer_is_running(timer))
+		return -E_TIMER_RUNNING;
+		*/
+
+	timer->timeout_ms = timeout_ms;
 	uint64_t expiry;
 
 	loop->time = timer_get_ms_time();
 
-	expiry = loop->time + timeout;
-	if(expiry < timeout)
+	expiry = loop->time + timeout_ms;
+	if(expiry < timeout_ms)
 		expiry = (uint64_t) - 1;
 
-	timer->timeout = expiry;
+	timer->clamped_timeout = expiry;
 	timer->cb = cb;
 
-	return heap_insert(&loop->timer_heap, &timer->timeout);
+	return heap_insert(&loop->timer_heap, &timer->clamped_timeout);
 }
 
 int compute_next_timeout(loop_t * loop){
 	assert(loop != NULL && "loop_t pointer is NULL");
 
-	int * timeout;
+	int * clamped_timeout;
 	uint64_t diff = 0;
 
-	timeout = heap_min(&loop->timer_heap);
+	clamped_timeout = heap_min(&loop->timer_heap);
 
-	if(timeout == NULL) return -1;
+	if(clamped_timeout == NULL) return -1;
 
 	/*timeout expired*/
-	if(*timeout <= loop->time) return 0;
+	if(*clamped_timeout <= loop->time) return 0;
 
-	diff = *timeout - loop->time;
+	diff = *clamped_timeout- loop->time;
 	
+
 	return diff > INT_MAX ? INT_MAX : diff;
+}
+
+void timer_stop(loop_t * loop, min_timer_t * timer){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(timer != NULL && "loop_t pointer is NULL");
+	int * clamped_timeout;
+	clamped_timeout = heap_min(&loop->timer_heap);
+	assert(clamped_timeout == &timer->clamped_timeout);
+	heap_remove(&loop->timer_heap);
+}
+
+int timer_maybe_repeat(loop_t * loop, min_timer_t * timer){
+	assert(loop != NULL && "loop_t pointer is NULL");
+	assert(timer != NULL && "loop_t pointer is NULL");
+	if(timer->flags & TIMER_REPEAT && timer->r_count < timer->repeat){
+		timer_start(loop, timer, timer->timeout_ms, timer->cb);
+		timer->r_count++;
+	}
+	return timer->r_count;
+}
+
+int timer_is_running(min_timer_t * timer){
+	assert(timer != NULL && "loop_t pointer is NULL");
+	return timer->flags & TIMER_RUNNING;
 }

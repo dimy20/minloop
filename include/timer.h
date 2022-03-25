@@ -22,8 +22,11 @@ struct timer_s{
 
 int timer_init(min_timer_t * timer, int repeat);
 uint64_t timer_get_ms_time(void);
-int timer_start(loop_t * loop, min_timer_t * timer, int timeout, timer_cb_t cb);
+int timer_start(loop_t * loop, min_timer_t * timer, int timeout_ms, timer_cb_t cb);
 int compute_next_timeout(loop_t * loop);
+void timer_stop(loop_t * loop, min_timer_t * timer);
+int timer_maybe_repeat(loop_t * loop, min_timer_t * timer);
+int timer_is_running(min_timer_t * timer);
 
 #endif
 
