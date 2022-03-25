@@ -25,6 +25,8 @@ const char * errstr(int err_code){
 			return EIO_INVAL_EV_STR;
 		case EIO_BAD_IO:
 			return EIO_BAD_IO_STR;
+		case E_TIMER_RUNNING:
+			return E_TIMER_RUNNING_STR;
 	}
 	return ERROR_CODE_UNKNOWN;
 }
