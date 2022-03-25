@@ -79,9 +79,9 @@ int main(){
 	if(err < 0) LOG_ERROR(err);
 
 	min_timer_t timer_test;
-	timer_init(&timer_test);
+	timer_init(&timer_test, 10);
 
-	timer_start(&loop, &timer_test, 5000, timer_cb_test);
+	timer_start(&loop, &timer_test, 1000, timer_cb_test);
 
 	loop_start(&loop);
 	return 0;
