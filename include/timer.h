@@ -3,13 +3,20 @@
 #include <stdint.h>
 
 #include "../include/loop.h"
+
+#define TIMER_RUNNING 0x01
+#define TIMER_REPEAT  0x02
+
 typedef void(*timer_cb_t)(void);
 typedef struct timer_s min_timer_t;
 
 struct timer_s{
 	timer_cb_t cb;
-	int timeout;
+	int clamped_timeout; 
+	int timeout_ms;
 	int repeat;
+	uint8_t flags;
+	int r_count;
 };
 
 
