@@ -28,7 +28,8 @@ static void run_timers(loop_t * loop){
 		if(timer == NULL)
 			break;
 		timer->cb();
-		heap_remove(&loop->timer_heap);
+		timer_stop(loop, timer);
+		timer_maybe_repeat(loop, timer);
 	}
 }
 
@@ -95,7 +96,7 @@ void loop_start(loop_t * loop){
 		//loop_clean_up(loop);
 		loop_update_time(loop);
 		run_timers(loop); /*run due timers*/
-    }
+	}
 }
 
 void poll_io(loop_t * loop, int timeout){
