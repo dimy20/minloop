@@ -20,7 +20,7 @@
 
 #define NET_ERR(x) (-(x))
 
-int check(int ret,char * err_msg,u_int8_t exflg){
+int check(int ret,const char * err_msg,u_int8_t exflg){
     if(ret < 0){
         perror(err_msg);
         if((exflg & EXIT_FAILURE))
@@ -29,7 +29,7 @@ int check(int ret,char * err_msg,u_int8_t exflg){
     return 0;
 }
 
-int file_exists(char * filename){
+int file_exists(const char * filename){
     int ret = 1;
     struct stat s;
     ret = stat(filename,&s);
@@ -76,7 +76,7 @@ int ntcp_listen(int fd, int backlog){
 	return err;
 }
 
-int ntcp_server(char * hostname, char * port){
+int ntcp_server(const char * hostname, const char * port){
 	/*service and node cant be both NULL*/
 	if(hostname == NULL && port == NULL)
 		return -EINVAL;
@@ -154,7 +154,7 @@ int nsock_nonblock(int fd){
 	return flags;
 }
 
-int net_create_server_usock(char * socket_name){
+int net_create_server_usock(const char * socket_name){
 	if(socket_name == NULL)
 		return -EINVAL;
 
@@ -189,7 +189,7 @@ int net_create_server_usock(char * socket_name){
     return usocket_fd;
 }
 
-int net_connect(char * host, uint16_t port){
+int net_connect(const char * host, uint16_t port){
 	if(host == NULL || port <=1024)
 		return -EINVAL;
 
@@ -212,7 +212,7 @@ int net_connect(char * host, uint16_t port){
     return fd;
 }
 
-int net_connect_usock(char * sock_name){
+int net_connect_usock(const char * sock_name){
    if(sock_name == NULL)
 	   return -EINVAL;
 

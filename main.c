@@ -78,10 +78,11 @@ int main(){
 	err = stream_listen(server, on_connection);
 	if(err < 0) LOG_ERROR(err);
 
-	min_timer_t timer_test;
-	timer_init(&timer_test, 10);
-
-	timer_start(&loop, &timer_test, 1000, timer_cb_test);
+	for(int i = 0 ; i < 10000; i++){
+		min_timer_t * timer_test = malloc(sizeof(min_timer_t));
+		timer_init(timer_test, 0);
+		timer_start(&loop, timer_test, 2000, timer_cb_test);
+	}
 
 	loop_start(&loop);
 	return 0;
